@@ -1,0 +1,51 @@
+.patient-list {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.patient-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease;
+}
+
+.patient-card:hover {
+  transform: translateY(-2px);
+}
+
+.patient-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.patient-icon {
+  font-size: 1.5rem;
+  color: #0d6efd;
+}
+
+.patient-card h5 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.patient-card p {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+}
+
+.select-patient-btn {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.select-patient-btn:hover {
+  transform: scale(1.05);
+}

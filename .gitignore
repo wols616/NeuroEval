@@ -1,0 +1,13 @@
+# Node modules
+client/node_modules/
+server/node_modules/
+
+# Builds
+client/build/
+dist/
+
+# Logs
+*.log
+
+# Env
+*.env

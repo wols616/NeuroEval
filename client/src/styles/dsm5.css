@@ -1,0 +1,249 @@
+.evaluation-container {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.evaluation-title {
+    font-size: 2rem;
+    color: #3a7bd5;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.evaluation-list {
+    list-style: none;
+    padding: 0;
+}
+
+.evaluation-item {
+    background: #f4f4f4;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+}
+
+.evaluation-item:hover {
+    background: #e0f7fa;
+}
+
+.evaluation-item p {
+    color: #007bff;
+    font-size: 1.2rem;
+}
+
+.evaluation-item strong {
+    color: #007bff;
+    font-size: 1.2rem;
+}
+
+.evaluation-description {
+    font-size: 1rem;
+    color: #333;
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(58, 123, 213, 0.1);
+    border-radius: 6px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.evaluation-select {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+.primary-button {
+    background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    border: none;
+    transition: 0.3s ease;
+}
+
+.primary-button:hover {
+    background: #007bff;
+}
+
+.evaluation-result {
+    margin-top: 20px;
+    padding: 15px;
+    background: #e0f7fa;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    /* Asegura que esté por encima de otros elementos */
+    width: 400px;
+    text-align: center;
+}
+
+.modal h3 {
+    color: #007bff;
+    font-size: 1.5rem;
+}
+
+.options-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.option-box {
+    padding: 15px;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #007bff;
+    background: white;
+    width: 100px;
+    text-align: center;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.option-box.selected {
+    background: #007bff;
+    color: white;
+}
+
+.finalize-button {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.finalize-button:hover {
+    background: #007bff;
+}
+
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    /* Asegura que la capa gris esté por encima */
+}
+
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    /* Asegura que el modal esté sobre el fondo gris */
+    width: 50vh;
+    height: 50vh;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* Asegura que no esté oculto */
+}
+
+.modal h3 {
+    color: #007bff;
+    font-size: 1.5rem;
+}
+
+.options-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px 0;
+}
+
+.option-box {
+    padding: 15px;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #007bff;
+    background: white;
+    width: 100px;
+    text-align: center;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.option-box.selected {
+    background: #007bff;
+    color: white;
+}
+
+.finalize-button {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.finalize-button:hover {
+    background: #007bff;
+}
+
+.evaluation-input {
+    width: 100%;
+    padding: 8px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #007bff;
+    font-size: 1rem;
+}
+
+.displaynone {
+    display: none;
+}
+
+.option-box {
+    padding: 15px;
+    border: 2px solid #007bff;
+    border-radius: 8px;
+    cursor: pointer;
+    color: #007bff;
+    background: white;
+    width: 120px;
+    text-align: center;
+    font-weight: bold;
+    margin: 10px auto;
+}
+
+.finalize-button {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
