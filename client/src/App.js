@@ -20,6 +20,7 @@ import ProtectedRoute from "./components/ProtectedRoute.js";
 import Layout from "./components/Layout";
 import PatientSelection from "./pages/PatientSelection";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 function PrivateRoute({ children }) {
   const { user } = useAuth();

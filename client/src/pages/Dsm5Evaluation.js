@@ -15,6 +15,7 @@ export default function Dsm5Evaluation() {
   const [respuestas, setRespuestas] = useState({});
   const [resultado, setResultado] = useState("");
   const [total, setTotal] = useState(0);
+  const [descripcionesVisibles, setDescripcionesVisibles] = useState({});
   const [seleccionados, setSeleccionados] = useState({
     ADI_R: false,
     ADOS_2: false,
@@ -42,6 +43,13 @@ export default function Dsm5Evaluation() {
 
     obtenerPreguntas();
   }, []);
+
+  const toggleDescripcion = (id) => {
+    setDescripcionesVisibles((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
 
   const manejarCambio = (id, valor) => {
     setRespuestas({
@@ -222,6 +230,20 @@ export default function Dsm5Evaluation() {
           <li key={pregunta.ID} className="evaluation-item">
             <strong>{pregunta.Titulo}</strong>
             <p>{pregunta.Pregunta}</p>
+            <button
+              className="toggle-button btn btn-outline-primary"
+              onClick={() => toggleDescripcion(pregunta.ID)}
+            >
+              {descripcionesVisibles[pregunta.ID] ? (
+                <i class="bi bi-arrows-collapse"></i>
+              ) : (
+                <i class="bi bi-arrows-expand"></i>
+              )}
+            </button>
+
+            {descripcionesVisibles[pregunta.ID] && (
+              <p className="evaluation-description">{pregunta.Descripcion}</p>
+            )}
             <select
               className="evaluation-select"
               required
@@ -237,7 +259,7 @@ export default function Dsm5Evaluation() {
         ))}
       </ul>
 
-      <button className="primary-button" onClick={calcularTotal}>
+      <button className="btn btn-primary" onClick={calcularTotal}>
         Calcular Sumatoria
       </button>
 

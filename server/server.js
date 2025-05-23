@@ -98,7 +98,7 @@ app.post("/api/auth/login", (req, res) => {
       const token = jwt.sign(
         { id: user.ID, email: user.Email, role },
         process.env.JWT_SECRET || "your-secret-key",
-        { expiresIn: "1h" }
+        { expiresIn: "3h" }
       );
       res.json({ token, user });
     } else {
@@ -269,12 +269,19 @@ app.post("/api/evaluaciones", async (req, res) => {
   }
 });
 
-// Método para eliminar una evaluación
 app.delete("/api/evaluaciones/:id", authenticateToken, (req, res) => {
-  const query = "DELETE FROM Evaluacion WHERE ID = ?";
-  db.query(query, [req.params.id], (err, results) => {
-    if (err) return res.status(500).json({ error: "Database error" });
-    res.json({ message: "Evaluation deleted successfully" });
+  const query1 = "DELETE FROM Adir WHERE EvaluacionID = ?";
+  db.query(query1, [req.params.id], (err) => {
+    if (err)
+      return res.status(500).json({ error: "Database error en Respuesta" });
+
+    // Solo si la primera eliminación fue exitosa, ejecutamos la segunda
+    const query = "DELETE FROM Evaluacion WHERE ID = ?";
+    db.query(query, [req.params.id], (err, results) => {
+      if (err)
+        return res.status(500).json({ error: "Database error en Evaluacion" });
+      res.json({ message: "Evaluation deleted successfully" });
+    });
   });
 });
 
@@ -527,6 +534,26 @@ app.delete("/api/reportes/:id", (req, res) => {
   db.query(query, [req.params.id], (err, results) => {
     if (err) return res.status(500).json({ error: "Database error" });
     res.json({ message: "Report deleted successfully" });
+  });
+});
+
+// Método para saber si tengo acceso a una evaluación
+app.get("/api/evaluacionesApto/:id", (req, res) => {
+  const { id } = req.params;
+  //const { role } = req.user;
+
+  const query = `SELECT dsm5.Apto 
+    FROM dsm5 
+    JOIN evaluacion ON evaluacion.ID = dsm5.EvaluacionID 
+    WHERE evaluacion.PacienteID = ? 
+    ORDER BY dsm5.ID DESC 
+    LIMIT 1;
+    `;
+  db.query(query, [id], (err, results) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    if (results.length === 0)
+      return res.status(404).json({ error: "Evaluation not found" });
+    res.json(results[0]);
   });
 });
 //------------------------------------------------------------------------------------

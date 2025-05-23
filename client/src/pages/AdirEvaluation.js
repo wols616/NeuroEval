@@ -83,6 +83,24 @@ export default function AdirEvaluation() {
     }
   };
 
+  const salirEvaluacion = async () => {
+    const res = await fetch(
+      `http://localhost:5000/api/evaluaciones/${evaluacionID}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || "Error al eliminar evaluación");
+    }
+    window.location.href = "/dashboard";
+  };
+
   const manejarCambio = (respuestaID, valor) => {
     setRespuestasSeleccionadas((prev) => ({
       ...prev,
@@ -169,13 +187,13 @@ export default function AdirEvaluation() {
     return (
       <div className="max-w-3xl mx-auto p-6">
         <h2 className="text-2xl font-bold mb-4">ADI-R Evaluation</h2>
-        <p className="text-gray-600 mb-6">
+        <p className="text-black mb-6">
           Para comenzar la evaluación ADI-R para este paciente, haga clic en el
           botón "Iniciar Evaluación".
         </p>
         <button
           onClick={iniciarEvaluacion}
-          className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+          className="px-6 py-3 btn btn-primary"
         >
           Iniciar Evaluación
         </button>
@@ -224,7 +242,7 @@ export default function AdirEvaluation() {
         />
         <button
           onClick={guardarDiagnostico}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 btn btn-primary"
         >
           Guardar Diagnóstico
         </button>
@@ -238,6 +256,13 @@ export default function AdirEvaluation() {
     <div className="max-w-3xl mx-auto p-6">
       <h2 className="text-2xl font-bold mb-4">Evaluación ADI-R</h2>
       <div className="mb-4">
+        <button
+          onClick={salirEvaluacion}
+          className="px-4 py-2 bg-red-500 rounded hover:bg-red-600 btn btn-outline-danger"
+          style={{ color: "red" }}
+        >
+          Salir
+        </button>
         <span className="text-sm text-gray-500">
           Pregunta {indice + 1} de {preguntas.length}
         </span>
@@ -271,17 +296,17 @@ export default function AdirEvaluation() {
         <button
           onClick={preguntaAnterior}
           disabled={indice === 0}
-          className={`px-4 py-2 rounded ${
+          className={`px-4 py-2 ${
             indice === 0
               ? "bg-gray-300 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600"
+              : "btn btn-outline-secondary"
           }`}
         >
           Anterior
         </button>
         <button
           onClick={siguientePregunta}
-          className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+          className="px-4 py-2 btn btn-outline-primary"
         >
           {indice === preguntas.length - 1 ? "Finalizar" : "Siguiente"}
         </button>

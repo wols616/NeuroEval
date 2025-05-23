@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 const AdosEvaluation = () => {
   const { patientId } = useParams();
@@ -9,42 +9,45 @@ const AdosEvaluation = () => {
   const [patient, setPatient] = useState(null);
   const [activities, setActivities] = useState([]);
   const [newActivity, setNewActivity] = useState({
-    actividad: '',
-    observacion: '',
+    actividad: "",
+    observacion: "",
     puntuacion: 0,
-    modulo: 'T',
-    categoria: ''
+    modulo: "T",
+    categoria: "",
   });
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [diagnosis, setDiagnosis] = useState('');
+  const [diagnosis, setDiagnosis] = useState("");
 
   useEffect(() => {
     const fetchPatient = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/patients/${patientId}`, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        const response = await fetch(
+          `http://localhost:5000/api/patients/${patientId}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
-        });
+        );
         const data = await response.json();
         setPatient(data);
       } catch (error) {
-        console.error('Error fetching patient:', error);
+        console.error("Error fetching patient:", error);
       }
     };
 
     const fetchCategories = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/categories', {
+        const response = await fetch("http://localhost:5000/api/categories", {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         });
         const data = await response.json();
         setCategories(data);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error("Error fetching categories:", error);
       }
     };
 
@@ -54,25 +57,25 @@ const AdosEvaluation = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewActivity(prev => ({
+    setNewActivity((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleAddActivity = () => {
-    setActivities(prev => [...prev, { ...newActivity, id: Date.now() }]);
+    setActivities((prev) => [...prev, { ...newActivity, id: Date.now() }]);
     setNewActivity({
-      actividad: '',
-      observacion: '',
+      actividad: "",
+      observacion: "",
       puntuacion: 0,
-      modulo: 'T',
-      categoria: ''
+      modulo: "T",
+      categoria: "",
     });
   };
 
   const handleRemoveActivity = (id) => {
-    setActivities(prev => prev.filter(activity => activity.id !== id));
+    setActivities((prev) => prev.filter((activity) => activity.id !== id));
   };
 
   const handleSubmit = async () => {
@@ -81,28 +84,28 @@ const AdosEvaluation = () => {
         PacienteID: patientId,
         EspecialistaID: user.id,
         Fecha: new Date().toISOString(),
-        TipoEvaluacion: 'ADOS-2',
-        Actividades: activities.map(activity => ({
+        TipoEvaluacion: "ADOS-2",
+        Actividades: activities.map((activity) => ({
           Actividad: activity.actividad,
           Observacion: activity.observacion,
           Puntuacion: activity.puntuacion,
           Modulo: activity.modulo,
-          CategoriaID: activity.categoria
+          CategoriaID: activity.categoria,
         })),
-        Diagnostico: diagnosis
+        Diagnostico: diagnosis,
       };
 
-      const response = await fetch('http://localhost:5000/api/evaluaciones', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/evaluaciones", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(evaluationData)
+        body: JSON.stringify(evaluationData),
       });
 
       if (!response.ok) {
-        throw new Error('Error al crear evaluación');
+        throw new Error("Error al crear evaluación");
       }
 
       const data = await response.json();
@@ -110,11 +113,11 @@ const AdosEvaluation = () => {
 
       // Guardar cada actividad
       for (const activity of activities) {
-        const activityResponse = await fetch('http://localhost:5000/api/ados', {
-          method: 'POST',
+        const activityResponse = await fetch("http://localhost:5000/api/ados", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
           body: JSON.stringify({
             EvaluacionID: evaluacionID,
@@ -122,39 +125,39 @@ const AdosEvaluation = () => {
             Observacion: activity.observacion,
             Puntuacion: activity.puntuacion,
             Modulo: activity.modulo,
-            CategoriaID: activity.categoria
-          })
+            CategoriaID: activity.categoria,
+          }),
         });
 
         if (!activityResponse.ok) {
-          throw new Error('Error al guardar actividad');
+          throw new Error("Error al guardar actividad");
         }
       }
 
       // Guardar el reporte
-      const reportResponse = await fetch('http://localhost:5000/api/reportes', {
-        method: 'POST',
+      const reportResponse = await fetch("http://localhost:5000/api/reportes", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
           EvaluacionID: evaluacionID,
-          FechaGeneracion: new Date().toISOString().split('T')[0],
-          Contenido: diagnosis
-        })
+          FechaGeneracion: new Date().toISOString().split("T")[0],
+          Contenido: diagnosis,
+        }),
       });
 
       if (!reportResponse.ok) {
-        throw new Error('Error al guardar reporte');
+        throw new Error("Error al guardar reporte");
       }
 
       // Mostrar mensaje de éxito
-      alert('Evaluación guardada exitosamente');
-      navigate('/dashboard');
+      alert("Evaluación guardada exitosamente");
+      navigate("/dashboard");
     } catch (error) {
-      console.error('Error al guardar evaluación:', error);
-      alert('Error al guardar la evaluación: ' + error.message);
+      console.error("Error al guardar evaluación:", error);
+      alert("Error al guardar la evaluación: " + error.message);
     }
   };
 
@@ -231,9 +234,13 @@ const AdosEvaluation = () => {
                       className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
                     >
                       <option value="0">0 - No hay anormalidad</option>
-                      <option value="1">1 - Comportamiento levemente anormal</option>
+                      <option value="1">
+                        1 - Comportamiento levemente anormal
+                      </option>
                       <option value="2">2 - Claramente anormal</option>
-                      <option value="3">3 - Comportamiento severamente anormal</option>
+                      <option value="3">
+                        3 - Comportamiento severamente anormal
+                      </option>
                     </select>
                   </div>
                   <div>
@@ -274,7 +281,7 @@ const AdosEvaluation = () => {
                 </div>
                 <button
                   onClick={handleAddActivity}
-                  className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                  className="mt-4 btn btn-outline-primary"
                 >
                   Agregar Actividad
                 </button>
@@ -323,7 +330,7 @@ const AdosEvaluation = () => {
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
                               onClick={() => handleRemoveActivity(activity.id)}
-                              className="text-red-600 hover:text-red-900"
+                              className="btn btn-outline-danger"
                             >
                               Eliminar
                             </button>
@@ -348,10 +355,7 @@ const AdosEvaluation = () => {
               </div>
 
               <div className="mt-8">
-                <button
-                  onClick={handleSubmit}
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
+                <button onClick={handleSubmit} className="btn btn-primary">
                   Guardar Evaluación
                 </button>
               </div>

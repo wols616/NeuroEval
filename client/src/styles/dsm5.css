@@ -61,20 +61,6 @@
     border: 1px solid #ccc;
 }
 
-.primary-button {
-    background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: none;
-    transition: 0.3s ease;
-}
-
-.primary-button:hover {
-    background: #007bff;
-}
-
 .evaluation-result {
     margin-top: 20px;
     padding: 15px;
@@ -132,7 +118,6 @@
 .finalize-button {
     padding: 10px 20px;
     background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-    color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -202,7 +187,6 @@
 .finalize-button {
     padding: 10px 20px;
     background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-    color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -242,7 +226,6 @@
 .finalize-button {
     padding: 10px 20px;
     background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-    color: white;
     border: none;
     border-radius: 6px;
     cursor: pointer;
