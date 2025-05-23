@@ -81,6 +81,7 @@ app.post("/api/auth/change-password", authenticateToken, async (req, res) => {
 });
 
 // LOGUEO
+/*
 app.post("/api/auth/login", (req, res) => {
   const { email, password, role } = req.body;
 
@@ -118,9 +119,54 @@ app.post("/api/auth/login", (req, res) => {
             } else {
                 res.status(401).json({ error: 'Invalid credentials' });
             }
-        });*/
+        }); -- Cerrar el comentario acá
+  });
+});*/
+
+
+
+
+const { comparePassword } = require('./utils/hashUtils');
+
+app.post("/api/auth/login", async (req, res) => {
+  const { email, password, role } = req.body;
+
+  const query = `SELECT * FROM ${role} WHERE Email = ?`;
+  db.query(query, [email], async (err, results) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+
+    if (results.length === 0) {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
+
+    const user = results[0];
+
+    const passwordMatch = await comparePassword(password, user.Contrasena);
+    if (passwordMatch) {
+      const token = jwt.sign(
+        { id: user.ID, email: user.Email, role },
+        process.env.JWT_SECRET || "your-secret-key",
+        { expiresIn: "3h" }
+      );
+      res.json({ token, user });
+    } else {
+      return res.status(401).json({ error: "Invalid credentials" });
+    }
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Protected routes
 app.get("/api/patients", authenticateToken, (req, res) => {
@@ -646,6 +692,9 @@ app.put("/api/administrador/:id", authenticateToken, (req, res) => {
   });
 });
 
+/*
+De esta forma aún no encriptaba
+
 app.post("/api/especialista", authenticateToken, (req, res) => {
   const { nombre, apellido, email, contrasena } = req.body;
   const query =
@@ -664,7 +713,56 @@ app.post("/api/administrador", authenticateToken, (req, res) => {
     if (err) return res.status(500).json({ error: "Database error" });
     res.json(results);
   });
+});*/
+
+
+
+//ya de esta forma sí encripta
+const { hashPassword } = require('./utils/hashUtils'); // Asegurate de que la ruta sea correcta
+
+app.post("/api/especialista", authenticateToken, async (req, res) => {
+  try {
+    const { nombre, apellido, email, contrasena } = req.body;
+
+    // Encriptar la contraseña
+    const hashedPassword = await hashPassword(contrasena);
+
+    const query =
+      "INSERT INTO Especialista (Nombre, Apellido, Email, Contrasena) VALUES (?, ?, ?, ?)";
+
+    db.query(query, [nombre, apellido, email, hashedPassword], (err, results) => {
+      if (err) return res.status(500).json({ error: "Database error" });
+      res.json(results);
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Encryption or server error" });
+  }
 });
+
+app.post("/api/administrador", authenticateToken, async (req, res) => {
+  try {
+    const { nombre, apellido, email, contrasena } = req.body;
+
+    // Encriptar la contraseña
+    const hashedPassword = await hashPassword(contrasena);
+
+    const query =
+      "INSERT INTO Administrador (Nombre, Apellido, Email, Contrasena) VALUES (?, ?, ?, ?)";
+
+    db.query(query, [nombre, apellido, email, hashedPassword], (err, results) => {
+      if (err) return res.status(500).json({ error: "Database error" });
+      res.json(results);
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Encryption or server error" });
+  }
+});
+
+
+
+
+
+
 
 // Start server
 const PORT = process.env.PORT || 5000;
