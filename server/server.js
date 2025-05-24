@@ -81,52 +81,48 @@ app.post("/api/auth/change-password", authenticateToken, async (req, res) => {
 });
 
 // LOGUEO
-/*
-app.post("/api/auth/login", (req, res) => {
-  const { email, password, role } = req.body;
+// app.post("/api/auth/login", (req, res) => {
+//   const { email, password, role } = req.body;
 
-  const query = `SELECT * FROM ${role} WHERE Email = ?`;
-  db.query(query, [email], (err, results) => {
-    if (err) return res.status(500).json({ error: "Database error" });
+//   const query = `SELECT * FROM ${role} WHERE Email = ?`;
+//   db.query(query, [email], (err, results) => {
+//     if (err) return res.status(500).json({ error: "Database error" });
 
-    if (results.length === 0) {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
+//     if (results.length === 0) {
+//       return res.status(401).json({ error: "Invalid credentials" });
+//     }
 
-    const user = results[0];
+//     const user = results[0];
 
-    if (user.Contrasena === password) {
-      const token = jwt.sign(
-        { id: user.ID, email: user.Email, role },
-        process.env.JWT_SECRET || "your-secret-key",
-        { expiresIn: "3h" }
-      );
-      res.json({ token, user });
-    } else {
-      return res.status(401).json({ error: "Invalid credentials" });
-    }
+//     if (user.Contrasena === password) {
+//       const token = jwt.sign(
+//         { id: user.ID, email: user.Email, role },
+//         process.env.JWT_SECRET || "your-secret-key",
+//         { expiresIn: "3h" }
+//       );
+//       res.json({ token, user });
+//     } else {
+//       return res.status(401).json({ error: "Invalid credentials" });
+//     }
 
-    /*bcrypt.compare(password, user.Contrasena, (err, result) => {
-            if (err) return res.status(500).json({ error: 'Authentication error' });
-            
-            if (result) {
-                const token = jwt.sign(
-                    { id: user.ID, email: user.Email, role },
-                    process.env.JWT_SECRET || 'your-secret-key',
-                    { expiresIn: '1h' }
-                );
-                res.json({ token, user });
-            } else {
-                res.status(401).json({ error: 'Invalid credentials' });
-            }
-        }); -- Cerrar el comentario acá
-  });
-});*/
+//     /*bcrypt.compare(password, user.Contrasena, (err, result) => {
+//             if (err) return res.status(500).json({ error: 'Authentication error' });
 
+//             if (result) {
+//                 const token = jwt.sign(
+//                     { id: user.ID, email: user.Email, role },
+//                     process.env.JWT_SECRET || 'your-secret-key',
+//                     { expiresIn: '1h' }
+//                 );
+//                 res.json({ token, user });
+//             } else {
+//                 res.status(401).json({ error: 'Invalid credentials' });
+//             }
+//         }); */
+//   });
+// });
 
-
-
-const { comparePassword } = require('./utils/hashUtils');
+const { comparePassword } = require("./utils/hashUtils");
 
 app.post("/api/auth/login", async (req, res) => {
   const { email, password, role } = req.body;
@@ -154,19 +150,6 @@ app.post("/api/auth/login", async (req, res) => {
     }
   });
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // Protected routes
 app.get("/api/patients", authenticateToken, (req, res) => {
@@ -715,10 +698,8 @@ app.post("/api/administrador", authenticateToken, (req, res) => {
   });
 });*/
 
-
-
 //ya de esta forma sí encripta
-const { hashPassword } = require('./utils/hashUtils'); // Asegúrate de que la ruta sea correcta
+const { hashPassword } = require("./utils/hashUtils"); // Asegúrate de que la ruta sea correcta
 
 // Función para validar la contraseña
 function isPasswordValid(password) {
@@ -736,7 +717,8 @@ app.post("/api/especialista", authenticateToken, async (req, res) => {
     // Validar contraseña antes de encriptar
     if (!isPasswordValid(contrasena)) {
       return res.status(400).json({
-        error: "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número."
+        error:
+          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
       });
     }
 
@@ -746,20 +728,21 @@ app.post("/api/especialista", authenticateToken, async (req, res) => {
     const query =
       "INSERT INTO Especialista (Nombre, Apellido, Email, Contrasena) VALUES (?, ?, ?, ?)";
 
-    db.query(query, [nombre, apellido, email, hashedPassword], (err, results) => {
-      if (err) return res.status(500).json({ error: "Database error" });
-      res.json(results);
-    });
+    db.query(
+      query,
+      [nombre, apellido, email, hashedPassword],
+      (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        res.json(results);
+      }
+    );
   } catch (error) {
     res.status(500).json({ error: "Encryption or server error" });
   }
 });
 
-
-
-
 function isPasswordValid(password) {
-  if (typeof password !== 'string') return false;
+  if (typeof password !== "string") return false;
 
   const lengthOk = password.length >= 8;
   const hasUpper = /[A-Z]/.test(password);
@@ -774,7 +757,8 @@ app.post("/api/administrador", authenticateToken, async (req, res) => {
 
     if (!contrasena || !isPasswordValid(contrasena)) {
       return res.status(400).json({
-        error: "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número."
+        error:
+          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
       });
     }
 
@@ -783,20 +767,18 @@ app.post("/api/administrador", authenticateToken, async (req, res) => {
     const query =
       "INSERT INTO Administrador (Nombre, Apellido, Email, Contrasena) VALUES (?, ?, ?, ?)";
 
-    db.query(query, [nombre, apellido, email, hashedPassword], (err, results) => {
-      if (err) return res.status(500).json({ error: "Database error" });
-      res.json(results);
-    });
+    db.query(
+      query,
+      [nombre, apellido, email, hashedPassword],
+      (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        res.json(results);
+      }
+    );
   } catch (error) {
     res.status(500).json({ error: "Encryption or server error" });
   }
 });
-
-
-
-
-
-
 
 // Start server
 const PORT = process.env.PORT || 5000;
