@@ -718,11 +718,27 @@ app.post("/api/administrador", authenticateToken, (req, res) => {
 
 
 //ya de esta forma sí encripta
-const { hashPassword } = require('./utils/hashUtils'); // Asegurate de que la ruta sea correcta
+const { hashPassword } = require('./utils/hashUtils'); // Asegúrate de que la ruta sea correcta
+
+// Función para validar la contraseña
+function isPasswordValid(password) {
+  const lengthOk = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  return lengthOk && hasUpper && hasLower && hasNumber;
+}
 
 app.post("/api/especialista", authenticateToken, async (req, res) => {
   try {
     const { nombre, apellido, email, contrasena } = req.body;
+
+    // Validar contraseña antes de encriptar
+    if (!isPasswordValid(contrasena)) {
+      return res.status(400).json({
+        error: "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número."
+      });
+    }
 
     // Encriptar la contraseña
     const hashedPassword = await hashPassword(contrasena);
@@ -739,11 +755,29 @@ app.post("/api/especialista", authenticateToken, async (req, res) => {
   }
 });
 
+
+
+
+function isPasswordValid(password) {
+  if (typeof password !== 'string') return false;
+
+  const lengthOk = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  return lengthOk && hasUpper && hasLower && hasNumber;
+}
+
 app.post("/api/administrador", authenticateToken, async (req, res) => {
   try {
     const { nombre, apellido, email, contrasena } = req.body;
 
-    // Encriptar la contraseña
+    if (!contrasena || !isPasswordValid(contrasena)) {
+      return res.status(400).json({
+        error: "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número."
+      });
+    }
+
     const hashedPassword = await hashPassword(contrasena);
 
     const query =

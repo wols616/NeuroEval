@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Form, Alert, Spinner } from 'react-bootstrap';
 import { FaUserPlus, FaUserMd, FaUserShield } from 'react-icons/fa';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Users = () => {
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     nombre: '',
@@ -48,7 +51,7 @@ const Users = () => {
         });
       } else {
         const errorData = await response.json();
-        setError(errorData.message || 'Error al agregar el usuario');
+        setError(errorData.error || 'Error al agregar el usuario');
       }
     } catch (error) {
       console.error('Error:', error);
@@ -108,18 +111,28 @@ const Users = () => {
                       />
                     </Form.Group>
                   </div>
-                  <div className="col-md-6 mb-3">
-                    <Form.Group>
-                      <Form.Label>Contraseña</Form.Label>
-                      <Form.Control
-                        type="password"
-                        name="contrasena"
-                        value={formData.contrasena}
-                        onChange={handleInputChange}
-                        required
-                      />
-                    </Form.Group>
-                  </div>
+                 <div className="col-md-6 mb-3">
+  <Form.Group>
+    <Form.Label>Contraseña</Form.Label>
+    <div className="input-group">
+      <Form.Control
+        type={showPassword ? "text" : "password"}
+        name="contrasena"
+        value={formData.contrasena}
+        onChange={handleInputChange}
+        required
+      />
+      <Button
+        variant="outline-secondary"
+        onClick={() => setShowPassword(!showPassword)}
+        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+        tabIndex={-1}
+      >
+        {showPassword ? <FaEyeSlash /> : <FaEye />}
+      </Button>
+    </div>
+  </Form.Group>
+</div>
                   <div className="col-md-6 mb-3">
                     <Form.Group>
                       <Form.Label>Rol</Form.Label>
