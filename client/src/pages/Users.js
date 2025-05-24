@@ -1,19 +1,19 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Button, Form, Alert, Spinner } from 'react-bootstrap';
-import { FaUserPlus, FaUserMd, FaUserShield } from 'react-icons/fa';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Form, Alert, Spinner } from "react-bootstrap";
+import { FaUserPlus, FaUserMd, FaUserShield } from "react-icons/fa";
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 const Users = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    nombre: '',
-    apellido: '',
-    email: '',
-    contrasena: '',
-    rol: 'Especialista'
+    nombre: "",
+    apellido: "",
+    email: "",
+    contrasena: "",
+    rol: "Especialista",
   });
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
@@ -21,7 +21,7 @@ const Users = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -31,31 +31,34 @@ const Users = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://localhost:5000/api/${formData.rol}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(formData)
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/${formData.rol}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(formData),
+        }
+      );
 
       if (response.ok) {
-        setSuccess('Usuario agregado correctamente');
+        setSuccess("Usuario agregado correctamente");
         setFormData({
-          nombre: '',
-          apellido: '',
-          email: '',
-          contrasena: '',
-          rol: 'Especialista'
+          nombre: "",
+          apellido: "",
+          email: "",
+          contrasena: "",
+          rol: "Especialista",
         });
       } else {
         const errorData = await response.json();
-        setError(errorData.error || 'Error al agregar el usuario');
+        setError(errorData.error || "Error al agregar el usuario");
       }
     } catch (error) {
-      console.error('Error:', error);
-      setError('Error al agregar el usuario');
+      console.error("Error:", error);
+      setError("Error al agregar el usuario");
     } finally {
       setLoading(false);
     }
@@ -72,7 +75,7 @@ const Users = () => {
             <div className="card-body">
               {error && <Alert variant="danger">{error}</Alert>}
               {success && <Alert variant="success">{success}</Alert>}
-              
+
               <Form onSubmit={handleSubmit}>
                 <div className="row">
                   <div className="col-md-6 mb-3">
@@ -111,28 +114,31 @@ const Users = () => {
                       />
                     </Form.Group>
                   </div>
-                 <div className="col-md-6 mb-3">
-  <Form.Group>
-    <Form.Label>Contraseña</Form.Label>
-    <div className="input-group">
-      <Form.Control
-        type={showPassword ? "text" : "password"}
-        name="contrasena"
-        value={formData.contrasena}
-        onChange={handleInputChange}
-        required
-      />
-      <Button
-        variant="outline-secondary"
-        onClick={() => setShowPassword(!showPassword)}
-        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-        tabIndex={-1}
-      >
-        {showPassword ? <FaEyeSlash /> : <FaEye />}
-      </Button>
-    </div>
-  </Form.Group>
-</div>
+                  <div className="col-md-6 mb-3">
+                    <Form.Group>
+                      <Form.Label>Contraseña</Form.Label>
+                      <div className="input-group">
+                        <Form.Control
+                          type={showPassword ? "text" : "password"}
+                          name="contrasena"
+                          value={formData.contrasena}
+                          onChange={handleInputChange}
+                          required
+                        />
+                        <Button
+                          variant="outline-secondary"
+                          onClick={() => setShowPassword(!showPassword)}
+                          style={{
+                            borderTopLeftRadius: 0,
+                            borderBottomLeftRadius: 0,
+                          }}
+                          tabIndex={-1}
+                        >
+                          {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </Button>
+                      </div>
+                    </Form.Group>
+                  </div>
                   <div className="col-md-6 mb-3">
                     <Form.Group>
                       <Form.Label>Rol</Form.Label>
@@ -149,12 +155,15 @@ const Users = () => {
                   </div>
                 </div>
                 <div className="d-flex justify-content-end">
-                  <Button
-                    variant="primary"
-                    type="submit"
-                    disabled={loading}
-                  >
-                    {loading && <Spinner as="span" animation="border" size="sm" className="me-2" />}
+                  <Button variant="primary" type="submit" disabled={loading}>
+                    {loading && (
+                      <Spinner
+                        as="span"
+                        animation="border"
+                        size="sm"
+                        className="me-2"
+                      />
+                    )}
                     Agregar Usuario
                   </Button>
                 </div>

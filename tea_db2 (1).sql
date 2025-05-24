@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 21, 2025 at 01:46 AM
+-- Generation Time: May 24, 2025 at 03:43 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `tea_db`
+-- Database: `tea_db2`
 --
 
 -- --------------------------------------------------------
@@ -80,7 +80,49 @@ INSERT INTO `adir` (`ID`, `EvaluacionID`, `RespuestaID`, `Puntuacion`) VALUES
 (117, 46, 72, 1),
 (118, 46, 73, 1),
 (119, 46, 74, 1),
-(120, 46, 75, 2);
+(120, 46, 75, 2),
+(142, 82, 1, 1),
+(143, 82, 2, 1),
+(144, 82, 3, 1),
+(145, 82, 4, 1),
+(146, 82, 5, 3),
+(147, 82, 6, 2),
+(148, 82, 7, 1),
+(149, 82, 8, 3),
+(150, 82, 9, 2),
+(151, 82, 10, 1),
+(152, 82, 11, 2),
+(153, 82, 12, 3),
+(154, 82, 13, 2),
+(155, 82, 14, 3),
+(156, 82, 15, 1),
+(157, 82, 16, 1),
+(158, 82, 17, 3),
+(159, 82, 18, 2),
+(160, 82, 19, 1),
+(161, 82, 20, 1),
+(162, 82, 21, 1),
+(163, 82, 22, 2),
+(164, 82, 23, 1),
+(165, 82, 24, 1),
+(166, 82, 25, 3),
+(167, 82, 26, 1),
+(168, 82, 27, 2),
+(169, 82, 28, 3),
+(170, 82, 29, 1),
+(171, 82, 30, 1),
+(172, 82, 31, 2),
+(173, 82, 32, 1),
+(174, 82, 66, 7),
+(175, 82, 67, 2),
+(176, 82, 68, 2),
+(177, 82, 69, 2),
+(178, 82, 70, 2),
+(179, 82, 71, 2),
+(180, 82, 72, 1),
+(181, 82, 73, 2),
+(182, 82, 74, 1),
+(183, 82, 75, 2);
 
 -- --------------------------------------------------------
 
@@ -93,7 +135,7 @@ CREATE TABLE `administrador` (
   `Nombre` varchar(100) DEFAULT NULL,
   `Apellido` varchar(100) DEFAULT NULL,
   `Email` varchar(50) DEFAULT NULL,
-  `Contrasena` varchar(30) DEFAULT NULL
+  `Contrasena` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -101,9 +143,9 @@ CREATE TABLE `administrador` (
 --
 
 INSERT INTO `administrador` (`ID`, `Nombre`, `Apellido`, `Email`, `Contrasena`) VALUES
-(1, 'Wilber', 'Rivas', 'wilber.rivas2003@gmail.com', '123456'),
-(2, 'Administrador', 'Principal', 'admin@neuroeval.com', '$2a$10$5WJv24201KRIY4NVRn1Aqe5'),
-(3, 'Rodolfo', 'Rivas', 'rodolfo@gmail.com', 'rodolfo123');
+(1, 'Wilber', 'Rivas', 'wilber.rivas2003@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
+(2, 'Administrador', 'Principal', 'admin@neuroeval.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
+(3, 'Rodolfo', 'Rivas', 'rodolfo@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC');
 
 -- --------------------------------------------------------
 
@@ -160,11 +202,23 @@ INSERT INTO `categoria` (`ID`, `Categoria`) VALUES
 
 CREATE TABLE `dsm5` (
   `ID` int(11) NOT NULL,
-  `PacienteID` int(11) NOT NULL,
-  `EspecialistaID` int(11) NOT NULL,
-  `Diagnostico` text DEFAULT NULL,
-  `Apto` varchar(10) DEFAULT NULL
+  `EvaluacionID` int(11) DEFAULT NULL,
+  `Apto` varchar(10) DEFAULT NULL,
+  `Puntuacion` int(11) DEFAULT NULL
 ) ;
+
+--
+-- Dumping data for table `dsm5`
+--
+
+INSERT INTO `dsm5` (`ID`, `EvaluacionID`, `Apto`, `Puntuacion`) VALUES
+(4, 64, 'ambos', 21),
+(5, 65, 'ninguno', 7),
+(6, 66, 'ados', 14),
+(7, 67, 'ambos', 21),
+(8, 68, 'adir', 16),
+(9, 80, 'ambos', 21),
+(10, 83, 'ambos', 18);
 
 -- --------------------------------------------------------
 
@@ -177,7 +231,7 @@ CREATE TABLE `especialista` (
   `Nombre` varchar(100) DEFAULT NULL,
   `Apellido` varchar(100) DEFAULT NULL,
   `Email` varchar(150) DEFAULT NULL,
-  `Contrasena` varchar(30) DEFAULT NULL
+  `Contrasena` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -185,9 +239,10 @@ CREATE TABLE `especialista` (
 --
 
 INSERT INTO `especialista` (`ID`, `Nombre`, `Apellido`, `Email`, `Contrasena`) VALUES
-(1, 'paola', 'vidal', 'paola@gmail.com', 'paola123'),
-(2, 'Eyleen', 'Salinas', 'eyleen@gmail.com', 'eyleen123'),
-(3, 'gggg', 'ggggg', 'maria@gmail.com', '123456');
+(1, 'paola', 'vidal', 'paola@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
+(2, 'Eyleen', 'Salinas', 'eyleen@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
+(3, 'gggg', 'ggggg', 'maria@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
+(4, 'Prueba', 'Prueba', 'prueba@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC');
 
 -- --------------------------------------------------------
 
@@ -212,19 +267,15 @@ INSERT INTO `evaluacion` (`ID`, `PacienteID`, `EspecialistaID`, `Fecha`, `TipoEv
 (42, 2, 1, '2025-05-16 20:18:37', 'ADOS-2'),
 (43, 3, 1, '2025-05-16 20:31:46', 'ADOS-2'),
 (46, 13, 3, '2025-05-17 00:00:00', 'ADI-R'),
-(47, 13, 3, '2025-05-17 03:06:01', 'ADOS-2');
-
--- --------------------------------------------------------
-
---
--- Table structure for table `observaciondsm5`
---
-
-CREATE TABLE `observaciondsm5` (
-  `ID` int(11) NOT NULL,
-  `Dsm5ID` int(11) NOT NULL,
-  `Observacion` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+(47, 13, 3, '2025-05-17 03:06:01', 'ADOS-2'),
+(64, 1, 1, '2025-05-23 08:56:16', 'DSM5'),
+(65, 2, 1, '2025-05-23 09:06:33', 'DSM-5'),
+(66, 1, 1, '2025-05-23 15:24:47', 'DSM-5'),
+(67, 4, 1, '2025-05-23 16:45:45', 'DSM-5'),
+(68, 5, 1, '2025-05-23 16:46:31', 'DSM-5'),
+(80, 1, 1, '2025-05-23 17:26:56', 'DSM-5'),
+(82, 5, 1, '2025-05-23 00:00:00', 'ADI-R'),
+(83, 2, 1, '2025-05-24 01:40:36', 'DSM-5');
 
 -- --------------------------------------------------------
 
@@ -293,6 +344,32 @@ INSERT INTO `pregunta` (`ID`, `Pregunta`, `Categoria`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `preguntadsm5`
+--
+
+CREATE TABLE `preguntadsm5` (
+  `ID` int(11) NOT NULL,
+  `Titulo` varchar(200) NOT NULL,
+  `Pregunta` varchar(300) DEFAULT NULL,
+  `Descripcion` varchar(300) DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `preguntadsm5`
+--
+
+INSERT INTO `preguntadsm5` (`ID`, `Titulo`, `Pregunta`, `Descripcion`) VALUES
+(1, 'Reciprocidad socioemocional', '¿La persona muestra dificultad para participar en interacciones sociales de forma natural (como responder al saludo, sonreír de vuelta, iniciar o mantener una conversación)?', 'Evalúa si hay problemas en el “ida y vuelta” social: conversaciones, compartir emociones o responder a señales sociales básicas.'),
+(2, 'Comunicación no verbal', '¿Tiene dificultad para usar o entender gestos, expresiones faciales o el contacto visual durante la comunicación?', 'Evalúa el uso y comprensión de la comunicación no verbal como el contacto visual, gestos o posturas sociales.'),
+(3, 'Relaciones sociales', '¿Le cuesta establecer, mantener o comprender relaciones sociales o adaptar su comportamiento a distintos contextos sociales?', 'Evalúa si entiende y aplica reglas sociales como turnarse al hablar, comportarse diferente con un amigo vs. un adulto, o hacer amistades.'),
+(4, 'Movimientos repetitivos o estereotipados', '¿La persona realiza movimientos repetitivos o inusuales como aleteo de manos, balanceo, girar objetos o repetir palabras/frases?', 'Evalúa si hay conductas motoras repetitivas o repetición del lenguaje (ecolalia, frases sin propósito).'),
+(5, 'Apego a rutinas / resistencia al cambio', '¿Se molesta mucho cuando hay cambios inesperados en su rutina, entorno o actividades?', 'Evalúa inflexibilidad, necesidad extrema de seguir rutinas y resistencia a lo nuevo.'),
+(6, 'Intereses restringidos o intensos', '¿Tiene intereses muy intensos o específicos que domina, repite frecuentemente y le cuesta dejar de lado?', 'Evalúa la intensidad y especificidad de intereses (ej. saber todo sobre trenes, memorizar mapas, etc.).'),
+(7, 'Reacciones sensoriales inusuales', '¿Reacciona de forma exagerada o inusual ante sonidos, texturas, luces, sabores u olores?', 'Evalúa sensibilidad extrema o indiferencia ante estímulos sensoriales (taparse los oídos, evitar ciertas telas, etc.).');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `reporte`
 --
 
@@ -312,7 +389,15 @@ INSERT INTO `reporte` (`ID`, `EvaluacionID`, `FechaGeneracion`, `Contenido`) VAL
 (2, 42, '2025-05-16 00:00:00', 'fdsgsdfg'),
 (3, 43, '2025-05-16 00:00:00', 'sdafasdf'),
 (4, 46, '2025-05-17 00:00:00', 'el niño presenta tal cosa'),
-(5, 47, '2025-05-17 00:00:00', 'el niño tiene tal cosa x2');
+(5, 47, '2025-05-17 00:00:00', 'el niño tiene tal cosa x2'),
+(17, 64, '2025-05-23 08:56:18', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
+(18, 65, '2025-05-23 09:06:33', 'Bajo nivel de indicios.'),
+(19, 66, '2025-05-23 15:24:47', 'Algunos indicios. Se recomienda observar más.'),
+(20, 67, '2025-05-23 16:45:45', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
+(21, 68, '2025-05-23 16:46:31', 'Algunos indicios. Se recomienda observar más.'),
+(22, 80, '2025-05-23 17:26:56', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
+(23, 82, '2025-05-23 00:00:00', 'Diagnostico de prueba'),
+(24, 83, '2025-05-24 01:40:36', 'Nivel alto de indicios. Se sugiere evaluación profesional.');
 
 -- --------------------------------------------------------
 
@@ -411,8 +496,7 @@ ALTER TABLE `categoria`
 --
 ALTER TABLE `dsm5`
   ADD PRIMARY KEY (`ID`),
-  ADD KEY `PacienteID` (`PacienteID`),
-  ADD KEY `EspecialistaID` (`EspecialistaID`);
+  ADD KEY `EvaluacionID` (`EvaluacionID`);
 
 --
 -- Indexes for table `especialista`
@@ -429,13 +513,6 @@ ALTER TABLE `evaluacion`
   ADD KEY `EspecialistaID` (`EspecialistaID`);
 
 --
--- Indexes for table `observaciondsm5`
---
-ALTER TABLE `observaciondsm5`
-  ADD PRIMARY KEY (`ID`),
-  ADD KEY `Dsm5ID` (`Dsm5ID`);
-
---
 -- Indexes for table `paciente`
 --
 ALTER TABLE `paciente`
@@ -445,6 +522,12 @@ ALTER TABLE `paciente`
 -- Indexes for table `pregunta`
 --
 ALTER TABLE `pregunta`
+  ADD PRIMARY KEY (`ID`);
+
+--
+-- Indexes for table `preguntadsm5`
+--
+ALTER TABLE `preguntadsm5`
   ADD PRIMARY KEY (`ID`);
 
 --
@@ -469,7 +552,7 @@ ALTER TABLE `respuesta`
 -- AUTO_INCREMENT for table `adir`
 --
 ALTER TABLE `adir`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=124;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
 
 --
 -- AUTO_INCREMENT for table `administrador`
@@ -499,19 +582,13 @@ ALTER TABLE `dsm5`
 -- AUTO_INCREMENT for table `especialista`
 --
 ALTER TABLE `especialista`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `evaluacion`
 --
 ALTER TABLE `evaluacion`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
-
---
--- AUTO_INCREMENT for table `observaciondsm5`
---
-ALTER TABLE `observaciondsm5`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 
 --
 -- AUTO_INCREMENT for table `paciente`
@@ -526,10 +603,16 @@ ALTER TABLE `pregunta`
   MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
+-- AUTO_INCREMENT for table `preguntadsm5`
+--
+ALTER TABLE `preguntadsm5`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
 -- AUTO_INCREMENT for table `reporte`
 --
 ALTER TABLE `reporte`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `respuesta`
@@ -559,8 +642,7 @@ ALTER TABLE `ados`
 -- Constraints for table `dsm5`
 --
 ALTER TABLE `dsm5`
-  ADD CONSTRAINT `dsm5_ibfk_1` FOREIGN KEY (`PacienteID`) REFERENCES `paciente` (`ID`),
-  ADD CONSTRAINT `dsm5_ibfk_2` FOREIGN KEY (`EspecialistaID`) REFERENCES `especialista` (`ID`);
+  ADD CONSTRAINT `dsm5_ibfk_1` FOREIGN KEY (`EvaluacionID`) REFERENCES `evaluacion` (`ID`);
 
 --
 -- Constraints for table `evaluacion`
@@ -568,12 +650,6 @@ ALTER TABLE `dsm5`
 ALTER TABLE `evaluacion`
   ADD CONSTRAINT `evaluacion_ibfk_1` FOREIGN KEY (`PacienteID`) REFERENCES `paciente` (`ID`),
   ADD CONSTRAINT `evaluacion_ibfk_2` FOREIGN KEY (`EspecialistaID`) REFERENCES `especialista` (`ID`);
-
---
--- Constraints for table `observaciondsm5`
---
-ALTER TABLE `observaciondsm5`
-  ADD CONSTRAINT `observaciondsm5_ibfk_1` FOREIGN KEY (`Dsm5ID`) REFERENCES `dsm5` (`ID`);
 
 --
 -- Constraints for table `reporte`
