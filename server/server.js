@@ -160,6 +160,8 @@ app.get("/api/patients", authenticateToken, (req, res) => {
   });
 });
 
+
+/*
 app.post("/api/patients", authenticateToken, (req, res) => {
   const { nombre, apellido, fechaNacimiento, direccion, telefono, email } =
     req.body;
@@ -175,6 +177,64 @@ app.post("/api/patients", authenticateToken, (req, res) => {
     }
   );
 });
+*/
+
+app.post("/api/patients", authenticateToken, (req, res) => {
+  const { nombre, apellido, fechaNacimiento, direccion, telefono, email } = req.body;
+
+  // Verificar si algún campo está vacío
+  if (
+    !nombre?.trim() ||
+    !apellido?.trim() ||
+    !fechaNacimiento?.trim() ||
+    !direccion?.trim() ||
+    !telefono?.trim() ||
+    !email?.trim()
+  ) {
+    return res.status(400).json({ error: "Todos los campos son obligatorios y no pueden estar vacíos." });
+  }
+
+  const query = `
+    INSERT INTO Paciente (Nombre, Apellido, FechaNacimiento, Direccion, Telefono, Email)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `;
+
+  db.query(
+    query,
+    [nombre, apellido, fechaNacimiento, direccion, telefono, email],
+    (err, results) => {
+      if (err) return res.status(500).json({ error: "Error en la base de datos." });
+      res.json({ id: results.insertId });
+    }
+  );
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.get("/api/patients/:id", authenticateToken, (req, res) => {
   const query = "SELECT * FROM Paciente WHERE ID = ?";
