@@ -85,10 +85,10 @@ const PatientReports = () => {
 
   return (
     <div className="container mt-5">
-      <h2 className="mb-4">
-        Reportes de {patient.Nombre} {patient.Apellido}
-      </h2>
       <div className="reports-container">
+        <h2 className="mb-4">
+          Reportes de {patient.Nombre} {patient.Apellido}
+        </h2>
         {reports.map((report) => (
           <div key={report.ID} className="report-card mb-3">
             <div className="report-header">

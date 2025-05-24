@@ -185,17 +185,17 @@ const AdosEvaluation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200">
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-6">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+          <div className="bg-white overflow-hidden shadow-lg rounded-lg">
+            <div className="d-flex flex-column p-5">
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 border-b pb-4">
                 Evaluación ADOS-2 - {patient.Nombre} {patient.Apellido}
               </h2>
 
               <div className="mb-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">
                   Nueva Actividad
                 </h3>
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
@@ -208,7 +208,7 @@ const AdosEvaluation = () => {
                       value={newActivity.actividad}
                       onChange={handleInputChange}
                       rows="3"
-                      className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
+                      className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
                     />
                   </div>
                   <div>
@@ -220,7 +220,7 @@ const AdosEvaluation = () => {
                       value={newActivity.observacion}
                       onChange={handleInputChange}
                       rows="3"
-                      className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
+                      className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
                     />
                   </div>
                   <div>
@@ -231,7 +231,7 @@ const AdosEvaluation = () => {
                       name="puntuacion"
                       value={newActivity.puntuacion}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
+                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
                     >
                       <option value="0">0 - No hay anormalidad</option>
                       <option value="1">
@@ -251,7 +251,7 @@ const AdosEvaluation = () => {
                       name="modulo"
                       value={newActivity.modulo}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
+                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
                     >
                       <option value="T">Módulo T</option>
                       <option value="1">Módulo 1</option>
@@ -268,7 +268,7 @@ const AdosEvaluation = () => {
                       name="categoria"
                       value={newActivity.categoria}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
+                      className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
                     >
                       <option value="">Seleccionar categoría</option>
                       {categories.map((category) => (
@@ -281,33 +281,33 @@ const AdosEvaluation = () => {
                 </div>
                 <button
                   onClick={handleAddActivity}
-                  className="mt-4 btn btn-outline-primary"
+                  className="my-4 btn btn-outline-primary"
                 >
                   Agregar Actividad
                 </button>
               </div>
 
               <div className="mb-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">
                   Actividades Registradas
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="min-w-full divide-y divide-gray-200">
                     <thead>
                       <tr>
-                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Actividad
                         </th>
-                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Observación
                         </th>
-                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Puntuación
                         </th>
-                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Módulo
                         </th>
-                        <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Acciones
                         </th>
                       </tr>
@@ -350,12 +350,12 @@ const AdosEvaluation = () => {
                   value={diagnosis}
                   onChange={(e) => setDiagnosis(e.target.value)}
                   rows="4"
-                  className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
+                  className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
                 />
               </div>
 
               <div className="mt-8">
-                <button onClick={handleSubmit} className="btn btn-primary">
+                <button onClick={handleSubmit} className="btn btn-primary my-4">
                   Guardar Evaluación
                 </button>
               </div>
