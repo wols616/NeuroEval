@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { Spinner, Modal, Button, Form, Alert } from 'react-bootstrap';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { Spinner, Modal, Button, Form, Alert } from "react-bootstrap";
+import "../styles/patiens.css";
 
 const Patients = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [patients, setPatients] = useState([]);
   const [newPatient, setNewPatient] = useState({
-    nombre: '',
-    apellido: '',
-    fechaNacimiento: '',
-    direccion: '',
-    telefono: '',
-    email: ''
+    nombre: "",
+    apellido: "",
+    fechaNacimiento: "",
+    direccion: "",
+    telefono: "",
+    email: "",
   });
   const [editingPatient, setEditingPatient] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -27,17 +28,17 @@ const Patients = () => {
 
   const fetchPatients = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/patients', {
+      const response = await fetch("http://localhost:5000/api/patients", {
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       });
       const data = await response.json();
       setPatients(data);
       setError(null);
     } catch (error) {
-      console.error('Error fetching patients:', error);
-      setError('Error al cargar los pacientes');
+      console.error("Error fetching patients:", error);
+      setError("Error al cargar los pacientes");
     } finally {
       setLoading(false);
     }
@@ -45,40 +46,40 @@ const Patients = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewPatient(prev => ({
+    setNewPatient((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleAddPatient = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/patients', {
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/api/patients", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
-        body: JSON.stringify(newPatient)
+        body: JSON.stringify(newPatient),
       });
 
       if (response.ok) {
         setNewPatient({
-          nombre: '',
-          apellido: '',
-          fechaNacimiento: '',
-          direccion: '',
-          telefono: '',
-          email: ''
+          nombre: "",
+          apellido: "",
+          fechaNacimiento: "",
+          direccion: "",
+          telefono: "",
+          email: "",
         });
-        setSuccess('Paciente agregado correctamente');
+        setSuccess("Paciente agregado correctamente");
         fetchPatients();
       } else {
-        setError('Error al agregar el paciente');
+        setError("Error al agregar el paciente");
       }
     } catch (error) {
-      console.error('Error adding patient:', error);
-      setError('Error al agregar el paciente');
+      console.error("Error adding patient:", error);
+      setError("Error al agregar el paciente");
     }
   };
 
@@ -87,66 +88,72 @@ const Patients = () => {
     setNewPatient({
       nombre: patient.Nombre,
       apellido: patient.Apellido,
-      fechaNacimiento: patient.FechaNacimiento.split('T')[0],
+      fechaNacimiento: patient.FechaNacimiento.split("T")[0],
       direccion: patient.Direccion,
       telefono: patient.Telefono,
-      email: patient.Email
+      email: patient.Email,
     });
     setShowModal(true);
   };
 
   const handleUpdatePatient = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/patients/${editingPatient.ID}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(newPatient)
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/patients/${editingPatient.ID}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(newPatient),
+        }
+      );
 
       if (response.ok) {
         setShowModal(false);
         setEditingPatient(null);
         setNewPatient({
-          nombre: '',
-          apellido: '',
-          fechaNacimiento: '',
-          direccion: '',
-          telefono: '',
-          email: ''
+          nombre: "",
+          apellido: "",
+          fechaNacimiento: "",
+          direccion: "",
+          telefono: "",
+          email: "",
         });
-        setSuccess('Paciente actualizado correctamente');
+        setSuccess("Paciente actualizado correctamente");
         fetchPatients();
       } else {
-        setError('Error al actualizar el paciente');
+        setError("Error al actualizar el paciente");
       }
     } catch (error) {
-      console.error('Error updating patient:', error);
-      setError('Error al actualizar el paciente');
+      console.error("Error updating patient:", error);
+      setError("Error al actualizar el paciente");
     }
   };
 
   const handleDeletePatient = async (patientId) => {
-    if (window.confirm('¿Estás seguro de eliminar este paciente?')) {
+    if (window.confirm("¿Estás seguro de eliminar este paciente?")) {
       try {
-        const response = await fetch(`http://localhost:5000/api/patients/${patientId}`, {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        const response = await fetch(
+          `http://localhost:5000/api/patients/${patientId}`,
+          {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
           }
-        });
+        );
 
         if (response.ok) {
-          setSuccess('Paciente eliminado correctamente');
+          setSuccess("Paciente eliminado correctamente");
           fetchPatients();
         } else {
-          setError('Error al eliminar el paciente');
+          setError("Error al eliminar el paciente");
         }
       } catch (error) {
-        console.error('Error deleting patient:', error);
-        setError('Error al eliminar el paciente');
+        console.error("Error deleting patient:", error);
+        setError("Error al eliminar el paciente");
       }
     }
   };
@@ -230,8 +237,8 @@ const Patients = () => {
                       />
                     </div>
                   </div>
-                  <Button 
-                    variant="primary" 
+                  <Button
+                    variant="primary"
                     onClick={handleAddPatient}
                     className="mt-2"
                   >
@@ -254,8 +261,14 @@ const Patients = () => {
                     <tbody>
                       {patients.map((patient) => (
                         <tr key={patient.ID}>
-                          <td>{patient.Nombre} {patient.Apellido}</td>
-                          <td>{new Date(patient.FechaNacimiento).toLocaleDateString()}</td>
+                          <td>
+                            {patient.Nombre} {patient.Apellido}
+                          </td>
+                          <td>
+                            {new Date(
+                              patient.FechaNacimiento
+                            ).toLocaleDateString()}
+                          </td>
                           <td>
                             <Button
                               variant="outline-primary"
@@ -285,7 +298,12 @@ const Patients = () => {
       </div>
 
       {/* Modal para edición */}
-      <Modal show={showModal} onHide={() => setShowModal(false)}>
+      <Modal
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+        className="modal-dialog"
+      >
         <Modal.Header closeButton>
           <Modal.Title>Editar Paciente</Modal.Title>
         </Modal.Header>
