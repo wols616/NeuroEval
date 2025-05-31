@@ -70,7 +70,7 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="d-flex flex-column align-items-center p-5">
+    <div className="d-flex flex-column align-items-center p-1">
       <div className="flex justify-between items-center mb-6">
         <div className="flex items-center space-x-4">
           <h1 className="text-lg font-semibold text-gray-900">

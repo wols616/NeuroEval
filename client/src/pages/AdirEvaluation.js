@@ -83,6 +83,28 @@ export default function AdirEvaluation() {
     }
   };
 
+  const eliminarRespuestas = async (preguntaId) => {
+    try {
+      const respuesta = await fetch(
+        `http://localhost:5000/api/adir/${evaluacionID}/${preguntaId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!respuesta.ok) {
+        throw new Error("Error al eliminar respuestas");
+      }
+    } catch (err) {
+      console.error("Error al eliminar respuestas:", err);
+      throw err;
+    }
+  };
+
   const salirEvaluacion = async () => {
     const res = await fetch(
       `http://localhost:5000/api/evaluaciones/${evaluacionID}`,
@@ -151,9 +173,19 @@ export default function AdirEvaluation() {
     }
   };
 
-  const preguntaAnterior = () => {
+  const preguntaAnterior = async () => {
     if (indice > 0) {
-      setIndice((prev) => prev - 1);
+      try {
+        // Eliminar respuestas de la pregunta actual antes de retroceder
+        const preguntaActualId = preguntas[indice - 1].ID;
+        await eliminarRespuestas(preguntaActualId);
+
+        // Retroceder
+        setIndice((prev) => prev - 1);
+        setRespuestasSeleccionadas({});
+      } catch (err) {
+        console.error("Error al retroceder:", err);
+      }
     }
   };
 
@@ -276,7 +308,12 @@ export default function AdirEvaluation() {
             <p className="font-medium mb-2">{respuesta.Respuesta}</p>
             <select
               className="w-full p-2 border rounded"
-              value={respuestasSeleccionadas[respuesta.ID] || ""}
+              //ANCHOR - value={respuestasSeleccionadas[respuesta.ID] || ""}
+              value={
+                respuestasSeleccionadas.hasOwnProperty(respuesta.ID)
+                  ? respuestasSeleccionadas[respuesta.ID]
+                  : ""
+              }
               onChange={(e) =>
                 manejarCambio(respuesta.ID, parseInt(e.target.value))
               }

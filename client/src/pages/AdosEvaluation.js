@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const AdosEvaluation = () => {
   const { patientId } = useParams();
+  const { state } = useLocation();
+  const selectedModule = state?.selectedModule || "T";
   const navigate = useNavigate();
   const { user } = useAuth();
   const [patient, setPatient] = useState(null);
-  const [activities, setActivities] = useState([]);
-  const [newActivity, setNewActivity] = useState({
-    actividad: "",
+  const [predefinedActivities, setPredefinedActivities] = useState([]);
+  const [selectedActivities, setSelectedActivities] = useState([]);
+  const [currentActivity, setCurrentActivity] = useState({
+    actividadId: "",
     observacion: "",
     puntuacion: 0,
-    modulo: "T",
+    modulo: selectedModule,
     categoria: "",
   });
   const [categories, setCategories] = useState([]);
@@ -20,9 +23,12 @@ const AdosEvaluation = () => {
   const [diagnosis, setDiagnosis] = useState("");
 
   useEffect(() => {
-    const fetchPatient = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(
+        setLoading(true);
+
+        // Fetch patient data
+        const patientResponse = await fetch(
           `http://localhost:5000/api/patients/${patientId}`,
           {
             headers: {
@@ -30,71 +36,119 @@ const AdosEvaluation = () => {
             },
           }
         );
-        const data = await response.json();
-        setPatient(data);
+        const patientData = await patientResponse.json();
+        setPatient(patientData);
+
+        // Fetch categories
+        const categoriesResponse = await fetch(
+          "http://localhost:5000/api/categories",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const categoriesData = await categoriesResponse.json();
+        setCategories(categoriesData);
+
+        // Fetch predefined activities
+        const activitiesResponse = await fetch(
+          `http://localhost:5000/api/activities?module=${selectedModule}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        const activitiesData = await activitiesResponse.json();
+        setPredefinedActivities(activitiesData);
+
+        setLoading(false);
       } catch (error) {
-        console.error("Error fetching patient:", error);
+        console.error("Error fetching data:", error);
+        setLoading(false);
       }
     };
 
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/categories", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const data = await response.json();
-        setCategories(data);
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
-
-    fetchPatient();
-    fetchCategories();
+    fetchData();
   }, [patientId]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setNewActivity((prev) => ({
+    setCurrentActivity((prev) => ({
       ...prev,
       [name]: value,
     }));
   };
 
+  const getAvailableActivities = () => {
+    // Obtener IDs de actividades ya seleccionadas
+    const selectedIds = selectedActivities.map((a) => parseInt(a.actividadId));
+
+    // Filtrar actividades predefinidas excluyendo las ya seleccionadas
+    return predefinedActivities.filter(
+      (activity) => !selectedIds.includes(activity.id)
+    );
+  };
+
   const handleAddActivity = () => {
-    setActivities((prev) => [...prev, { ...newActivity, id: Date.now() }]);
-    setNewActivity({
-      actividad: "",
+    if (!currentActivity.actividadId) return;
+
+    const selectedActivity = predefinedActivities.find(
+      (a) => a.id === parseInt(currentActivity.actividadId)
+    );
+
+    if (!selectedActivity) return;
+
+    setSelectedActivities((prev) => [
+      ...prev,
+      {
+        ...currentActivity,
+        id: Date.now(),
+        actividadNombre: selectedActivity.Actividad,
+        moduloNombre: selectedActivity.NombreModulo,
+        descripcion: selectedActivity.Descripcion,
+      },
+    ]);
+
+    setCurrentActivity({
+      actividadId: "",
       observacion: "",
       puntuacion: 0,
-      modulo: "T",
+      modulo: selectedModule,
       categoria: "",
     });
   };
 
   const handleRemoveActivity = (id) => {
-    setActivities((prev) => prev.filter((activity) => activity.id !== id));
+    setSelectedActivities((prev) =>
+      prev.filter((activity) => activity.id !== id)
+    );
   };
 
   const handleSubmit = async () => {
+    if (selectedActivities.length === 0) {
+      alert("Debe agregar al menos una actividad");
+      return;
+    }
+
     try {
       const evaluationData = {
         PacienteID: patientId,
         EspecialistaID: user.id,
         Fecha: new Date().toISOString(),
         TipoEvaluacion: "ADOS-2",
-        Actividades: activities.map((activity) => ({
-          Actividad: activity.actividad,
+        Actividades: selectedActivities.map((activity) => ({
+          ActividadID: activity.actividadId,
           Observacion: activity.observacion,
           Puntuacion: activity.puntuacion,
-          Modulo: activity.modulo,
+          Modulo: selectedModule,
           CategoriaID: activity.categoria,
         })),
         Diagnostico: diagnosis,
       };
 
+      // Create evaluation
       const response = await fetch("http://localhost:5000/api/evaluaciones", {
         method: "POST",
         headers: {
@@ -111,9 +165,9 @@ const AdosEvaluation = () => {
       const data = await response.json();
       const evaluacionID = data.id;
 
-      // Guardar cada actividad
-      for (const activity of activities) {
-        const activityResponse = await fetch("http://localhost:5000/api/ados", {
+      // Save each activity
+      const saveActivities = selectedActivities.map((activity) =>
+        fetch("http://localhost:5000/api/ados", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -121,20 +175,18 @@ const AdosEvaluation = () => {
           },
           body: JSON.stringify({
             EvaluacionID: evaluacionID,
-            Actividad: activity.actividad,
+            ActividadID: activity.actividadId,
             Observacion: activity.observacion,
             Puntuacion: activity.puntuacion,
-            Modulo: activity.modulo,
+            Modulo: selectedModule,
             CategoriaID: activity.categoria,
           }),
-        });
+        })
+      );
 
-        if (!activityResponse.ok) {
-          throw new Error("Error al guardar actividad");
-        }
-      }
+      await Promise.all(saveActivities);
 
-      // Guardar el reporte
+      // Save report
       const reportResponse = await fetch("http://localhost:5000/api/reportes", {
         method: "POST",
         headers: {
@@ -152,7 +204,6 @@ const AdosEvaluation = () => {
         throw new Error("Error al guardar reporte");
       }
 
-      // Mostrar mensaje de éxito
       alert("Evaluación guardada exitosamente");
       navigate("/dashboard");
     } catch (error) {
@@ -160,13 +211,6 @@ const AdosEvaluation = () => {
       alert("Error al guardar la evaluación: " + error.message);
     }
   };
-
-  useEffect(() => {
-    // Actualizar el estado de carga cuando se cargue el paciente
-    if (patient) {
-      setLoading(false);
-    }
-  }, [patient]);
 
   if (loading) {
     return (
@@ -201,15 +245,22 @@ const AdosEvaluation = () => {
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Actividad
+                      Actividad *
                     </label>
-                    <textarea
-                      name="actividad"
-                      value={newActivity.actividad}
+                    <select
+                      name="actividadId"
+                      value={currentActivity.actividadId}
                       onChange={handleInputChange}
-                      rows="3"
                       className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
-                    />
+                      required
+                    >
+                      <option value="">Seleccione una actividad</option>
+                      {getAvailableActivities().map((activity) => (
+                        <option key={activity.id} value={activity.id}>
+                          {activity.Actividad} ({activity.NombreModulo})
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -217,7 +268,7 @@ const AdosEvaluation = () => {
                     </label>
                     <textarea
                       name="observacion"
-                      value={newActivity.observacion}
+                      value={currentActivity.observacion}
                       onChange={handleInputChange}
                       rows="3"
                       className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
@@ -225,13 +276,14 @@ const AdosEvaluation = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Puntuación
+                      Puntuación *
                     </label>
                     <select
                       name="puntuacion"
-                      value={newActivity.puntuacion}
+                      value={currentActivity.puntuacion}
                       onChange={handleInputChange}
                       className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
+                      required
                     >
                       <option value="0">0 - No hay anormalidad</option>
                       <option value="1">
@@ -244,31 +296,33 @@ const AdosEvaluation = () => {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Módulo
-                    </label>
-                    <select
+                    {/* <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Módulo *
+                    </label> */}
+                    {/* <select
                       name="modulo"
-                      value={newActivity.modulo}
+                      value={currentActivity.modulo}
                       onChange={handleInputChange}
                       className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
+                      required
                     >
                       <option value="T">Módulo T</option>
                       <option value="1">Módulo 1</option>
                       <option value="2">Módulo 2</option>
                       <option value="3">Módulo 3</option>
                       <option value="4">Módulo 4</option>
-                    </select>
+                    </select> */}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Categoría
+                      Categoría *
                     </label>
                     <select
                       name="categoria"
-                      value={newActivity.categoria}
+                      value={currentActivity.categoria}
                       onChange={handleInputChange}
                       className="mt-1 block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
+                      required
                     >
                       <option value="">Seleccionar categoría</option>
                       {categories.map((category) => (
@@ -281,6 +335,9 @@ const AdosEvaluation = () => {
                 </div>
                 <button
                   onClick={handleAddActivity}
+                  disabled={
+                    !currentActivity.actividadId || !currentActivity.categoria
+                  }
                   className="my-4 btn btn-outline-primary"
                 >
                   Agregar Actividad
@@ -289,73 +346,97 @@ const AdosEvaluation = () => {
 
               <div className="mb-8">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">
-                  Actividades Registradas
+                  Actividades Registradas ({selectedActivities.length})
                 </h3>
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead>
-                      <tr>
-                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Actividad
-                        </th>
-                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Observación
-                        </th>
-                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Puntuación
-                        </th>
-                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Módulo
-                        </th>
-                        <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Acciones
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      {activities.map((activity) => (
-                        <tr key={activity.id}>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {activity.actividad}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {activity.observacion}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {activity.puntuacion}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            {activity.modulo}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                            <button
-                              onClick={() => handleRemoveActivity(activity.id)}
-                              className="btn btn-outline-danger"
-                            >
-                              Eliminar
-                            </button>
-                          </td>
+                {selectedActivities.length === 0 ? (
+                  <div className="text-center py-4 text-gray-500">
+                    No hay actividades registradas
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead>
+                        <tr>
+                          <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Actividad
+                          </th>
+                          <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Módulo
+                          </th>
+                          <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Observación
+                          </th>
+                          <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Puntuación
+                          </th>
+                          <th className="px-5 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            Acciones
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {selectedActivities.map((activity) => (
+                          <tr key={activity.id}>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {activity.actividadNombre}
+                              {activity.descripcion && (
+                                <p className="text-xs text-gray-500 mt-1">
+                                  {activity.descripcion}
+                                </p>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {selectedModule}
+                            </td>
+                            <td className="px-6 py-4">
+                              {activity.observacion || "-"}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {activity.puntuacion}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                              <button
+                                onClick={() =>
+                                  handleRemoveActivity(activity.id)
+                                }
+                                className="btn btn-outline-danger"
+                              >
+                                Eliminar
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
 
               <div className="mt-8">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Diagnóstico
+                  Diagnóstico *
                 </label>
                 <textarea
                   value={diagnosis}
                   onChange={(e) => setDiagnosis(e.target.value)}
                   rows="4"
                   className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border border-gray-300 rounded-md"
+                  required
                 />
               </div>
 
-              <div className="mt-8">
-                <button onClick={handleSubmit} className="btn btn-primary my-4">
+              <div className="mt-8 flex justify-between">
+                <button
+                  onClick={() => navigate(`/patient/${patientId}`)}
+                  className="btn btn-outline-secondary"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  disabled={selectedActivities.length === 0 || !diagnosis}
+                  className="btn btn-primary"
+                >
                   Guardar Evaluación
                 </button>
               </div>

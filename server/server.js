@@ -160,7 +160,6 @@ app.get("/api/patients", authenticateToken, (req, res) => {
   });
 });
 
-
 /*
 app.post("/api/patients", authenticateToken, (req, res) => {
   const { nombre, apellido, fechaNacimiento, direccion, telefono, email } =
@@ -180,7 +179,8 @@ app.post("/api/patients", authenticateToken, (req, res) => {
 */
 
 app.post("/api/patients", authenticateToken, (req, res) => {
-  const { nombre, apellido, fechaNacimiento, direccion, telefono, email } = req.body;
+  const { nombre, apellido, fechaNacimiento, direccion, telefono, email } =
+    req.body;
 
   // Verificar si algún campo está vacío
   if (
@@ -191,7 +191,9 @@ app.post("/api/patients", authenticateToken, (req, res) => {
     !telefono?.trim() ||
     !email?.trim()
   ) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios y no pueden estar vacíos." });
+    return res.status(400).json({
+      error: "Todos los campos son obligatorios y no pueden estar vacíos.",
+    });
   }
 
   const query = `
@@ -203,38 +205,12 @@ app.post("/api/patients", authenticateToken, (req, res) => {
     query,
     [nombre, apellido, fechaNacimiento, direccion, telefono, email],
     (err, results) => {
-      if (err) return res.status(500).json({ error: "Error en la base de datos." });
+      if (err)
+        return res.status(500).json({ error: "Error en la base de datos." });
       res.json({ id: results.insertId });
     }
   );
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 app.get("/api/patients/:id", authenticateToken, (req, res) => {
   const query = "SELECT * FROM Paciente WHERE ID = ?";
@@ -374,6 +350,8 @@ app.delete("/api/evaluaciones/:id", authenticateToken, (req, res) => {
   });
 });
 
+//Método para
+
 //método para obtener las respuestas de una pregunta por su ID
 app.get("/api/respuestas/:id", authenticateToken, (req, res) => {
   const query = "SELECT * FROM Respuesta WHERE PreguntaID = ?";
@@ -502,29 +480,56 @@ app.post("/api/adir", async (req, res) => {
   }
 });
 
+// Eliminar respuestas ADIR para una evaluación y pregunta específica
+app.delete("/api/adir/:evaluacionID/:preguntaID", async (req, res) => {
+  try {
+    const { evaluacionID, preguntaID } = req.params;
+
+    const query = `
+      DELETE FROM Adir 
+      WHERE EvaluacionID = ? 
+      AND RespuestaID IN (
+        SELECT ID FROM Respuesta WHERE PreguntaID = ?
+      )
+    `;
+
+    db.query(query, [evaluacionID, preguntaID], (err, results) => {
+      if (err) {
+        console.error("Error al eliminar respuestas ADI-R:", err);
+        return res.status(500).json({ error: "Error al eliminar respuestas" });
+      }
+
+      res.json({ success: true, affectedRows: results.affectedRows });
+    });
+  } catch (error) {
+    console.error("Error en DELETE /api/adir:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
 app.post("/api/ados", (req, res) => {
   try {
     const {
       EvaluacionID,
-      Actividad,
+      ActividadID,
       Observacion,
       Puntuacion,
       Modulo,
       CategoriaID,
     } = req.body;
 
-    if (!EvaluacionID) {
+    if (!EvaluacionID || !ActividadID) {
       return res.status(400).json({ error: "Falta EvaluacionID" });
     }
 
     const query = `
-        INSERT INTO Ados (EvaluacionID, Actividad, Observacion, Puntuacion, Modulo, CategoriaID) 
+        INSERT INTO Ados (EvaluacionID, ActividadID, Observacion, Puntuacion, Modulo, CategoriaID) 
         VALUES (?, ?, ?, ?, ?, ?)
       `;
 
     db.query(
       query,
-      [EvaluacionID, Actividad, Observacion, Puntuacion, Modulo, CategoriaID],
+      [EvaluacionID, ActividadID, Observacion, Puntuacion, Modulo, CategoriaID],
       (err, results) => {
         if (err) {
           console.error("Error al guardar puntuación ADOS:", err);
@@ -538,6 +543,33 @@ app.post("/api/ados", (req, res) => {
     console.error("Error en /api/ados:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
+});
+
+// Obtener todas las actividades predefinidas
+app.get("/api/activities", (req, res) => {
+  const { module } = req.query;
+
+  let query = `
+    SELECT id, Actividad, Descripcion, NombreModulo 
+    FROM Actividadados
+  `;
+
+  const params = [];
+
+  if (module) {
+    query += " WHERE NombreModulo = ?";
+    params.push(module);
+  }
+
+  query += " ORDER BY id";
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error("Error al obtener actividades:", err);
+      return res.status(500).json({ error: "Error al obtener actividades" });
+    }
+    res.json(results);
+  });
 });
 
 app.post("/api/reportes", (req, res) => {

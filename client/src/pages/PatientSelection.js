@@ -74,7 +74,7 @@ const PatientSelection = () => {
       if (apto === "adir" && targetPath === "/adir") {
         navigate(`/adir/${patientId}`);
       } else if (apto === "ados" && targetPath === "/ados") {
-        navigate(`/ados/${patientId}`);
+        navigate(`/ados/${patientId}`, { state: { from: targetPath } });
       } else if (apto === "adir" && targetPath === "/ados") {
         alert(
           "Este paciente no puede realizar la evaluación ADOS. Pero si puede realizar la evaluación ADIR."

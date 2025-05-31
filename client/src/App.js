@@ -19,6 +19,7 @@ import Users from "./pages/Users";
 import ProtectedRoute from "./components/ProtectedRoute.js";
 import Layout from "./components/Layout";
 import PatientSelection from "./pages/PatientSelection";
+import AdosModuleSelection from "./components/AdosModuleSelection.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
@@ -90,6 +91,17 @@ function App() {
           />
           <Route
             path="/ados/:patientId"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <AdosModuleSelection />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/ados-evaluation/:patientId"
             element={
               <PrivateRoute>
                 <Layout>
