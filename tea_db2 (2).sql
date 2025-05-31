@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 24, 2025 at 03:43 AM
+-- Generation Time: May 31, 2025 at 10:25 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,6 +20,40 @@ SET time_zone = "+00:00";
 --
 -- Database: `tea_db2`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `actividadados`
+--
+
+CREATE TABLE `actividadados` (
+  `ID` int(11) NOT NULL,
+  `Actividad` varchar(300) NOT NULL,
+  `Descripcion` varchar(300) NOT NULL,
+  `NombreModulo` varchar(15) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `actividadados`
+--
+
+INSERT INTO `actividadados` (`ID`, `Actividad`, `Descripcion`, `NombreModulo`) VALUES
+(1, 'Frecuencia de vocalización espontanea dirigida a otros', 'descripción de esto', 'T'),
+(2, 'Señalar', 'descripción de esto', 'T'),
+(3, 'Gestos', 'descripción de esto', 'T'),
+(4, 'Frecuencia de vocalización espontanea dirigida a otros', 'descripción de esto', '1'),
+(5, 'Señalar', 'descripción de esto', '1'),
+(6, 'Gestos', 'descripción de esto', '1'),
+(7, 'Señalar', 'descripción de esto', '2'),
+(8, 'Gestos descriptivos, convencionales, instrumentales o informativos', 'descripción de esto', '2'),
+(9, 'Contacto visual inusual', 'descripción de esto', '2'),
+(10, 'Narración de sucesos', 'descripción de esto', '3'),
+(11, 'Conversación', 'descripción de esto', '3'),
+(12, 'Gestos descriptivos, convencionales, instrumentales o informativos', 'descripción de esto', '3'),
+(13, 'Uso estereotipado o idiosincrásico de palabras o frases', 'descripción de esto', '4'),
+(14, 'Conversación', 'descripción de esto', '4'),
+(15, 'Gestos descriptivos, convencionales, instrumentales o informativos', 'descripción de esto', '4');
 
 -- --------------------------------------------------------
 
@@ -122,7 +156,133 @@ INSERT INTO `adir` (`ID`, `EvaluacionID`, `RespuestaID`, `Puntuacion`) VALUES
 (180, 82, 72, 1),
 (181, 82, 73, 2),
 (182, 82, 74, 1),
-(183, 82, 75, 2);
+(183, 82, 75, 2),
+(184, 86, 1, 2),
+(185, 86, 2, 2),
+(186, 86, 3, 2),
+(187, 86, 4, 2),
+(188, 86, 5, 3),
+(189, 86, 9, 8),
+(190, 86, 6, 3),
+(191, 86, 7, 3),
+(192, 86, 8, 8),
+(193, 86, 10, 2),
+(194, 86, 11, 1),
+(195, 86, 12, 2),
+(196, 86, 13, 2),
+(197, 86, 14, 1),
+(198, 86, 15, 3),
+(199, 86, 16, 3),
+(200, 86, 17, 7),
+(201, 86, 18, 2),
+(202, 86, 19, 2),
+(203, 86, 20, 3),
+(204, 86, 21, 3),
+(205, 86, 22, 1),
+(206, 86, 23, 2),
+(207, 86, 24, 2),
+(208, 86, 25, 3),
+(209, 86, 26, 3),
+(210, 86, 27, 7),
+(211, 86, 28, 2),
+(212, 86, 29, 2),
+(213, 86, 30, 1),
+(214, 86, 31, 3),
+(215, 86, 32, 2),
+(216, 86, 66, 7),
+(217, 86, 67, 3),
+(218, 86, 68, 8),
+(219, 86, 69, 3),
+(220, 86, 70, 7),
+(221, 86, 71, 1),
+(222, 86, 72, 3),
+(223, 86, 73, 3),
+(224, 86, 74, 1),
+(225, 86, 75, 2),
+(226, 91, 1, 3),
+(227, 91, 2, 2),
+(228, 91, 3, 3),
+(229, 91, 4, 2),
+(230, 91, 5, 2),
+(231, 91, 6, 7),
+(232, 91, 7, 2),
+(233, 91, 8, 7),
+(234, 91, 9, 3),
+(235, 91, 10, 3),
+(236, 91, 11, 3),
+(237, 91, 12, 2),
+(238, 91, 13, 1),
+(239, 91, 14, 1),
+(240, 91, 15, 1),
+(241, 91, 16, 2),
+(242, 91, 17, 3),
+(243, 91, 18, 1),
+(244, 91, 19, 1),
+(245, 91, 20, 2),
+(246, 91, 21, 2),
+(247, 91, 22, 3),
+(248, 91, 23, 2),
+(249, 91, 24, 3),
+(250, 91, 25, 3),
+(251, 91, 26, 2),
+(252, 91, 27, 3),
+(253, 91, 28, 2),
+(254, 91, 29, 2),
+(255, 91, 30, 3),
+(256, 91, 31, 1),
+(257, 91, 32, 3),
+(258, 91, 66, 2),
+(259, 91, 67, 3),
+(260, 91, 68, 1),
+(261, 91, 69, 1),
+(262, 91, 70, 3),
+(263, 91, 71, 2),
+(264, 91, 72, 2),
+(265, 91, 73, 2),
+(266, 91, 74, 1),
+(267, 91, 75, 2),
+(268, 96, 1, 3),
+(269, 96, 2, 3),
+(270, 96, 3, 7),
+(271, 96, 4, 2),
+(272, 96, 5, 7),
+(273, 96, 6, 7),
+(274, 96, 7, 3),
+(275, 96, 8, 7),
+(276, 96, 9, 7),
+(277, 96, 10, 3),
+(278, 96, 11, 1),
+(279, 96, 12, 8),
+(280, 96, 13, 3),
+(281, 96, 14, 3),
+(282, 96, 15, 2),
+(283, 96, 16, 2),
+(284, 96, 17, 7),
+(285, 96, 18, 1),
+(286, 96, 19, 2),
+(287, 96, 20, 3),
+(288, 96, 21, 1),
+(289, 96, 22, 3),
+(290, 96, 23, 7),
+(291, 96, 24, 7),
+(292, 96, 25, 3),
+(293, 96, 26, 7),
+(294, 96, 27, 3),
+(295, 96, 28, 2),
+(296, 96, 29, 7),
+(297, 96, 30, 2),
+(298, 96, 31, 8),
+(299, 96, 32, 7),
+(300, 96, 66, 3),
+(301, 96, 67, 7),
+(302, 96, 68, 7),
+(303, 96, 69, 3),
+(304, 96, 70, 7),
+(305, 96, 71, 7),
+(306, 96, 72, 3),
+(307, 96, 73, 3),
+(308, 96, 74, 2),
+(309, 96, 75, 3);
 
 -- --------------------------------------------------------
 
@@ -145,7 +305,8 @@ CREATE TABLE `administrador` (
 INSERT INTO `administrador` (`ID`, `Nombre`, `Apellido`, `Email`, `Contrasena`) VALUES
 (1, 'Wilber', 'Rivas', 'wilber.rivas2003@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
 (2, 'Administrador', 'Principal', 'admin@neuroeval.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
-(3, 'Rodolfo', 'Rivas', 'rodolfo@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC');
+(3, 'Rodolfo', 'Rivas', 'rodolfo@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
+(4, 'Herberth', 'Contreras', 'herberth@gmail.com', '$2b$10$PhNK9QvFkimrY3qLeSjJlOO1M2IB9lm1NEtom9G1WhWlnG/nBBJz6');
 
 -- --------------------------------------------------------
 
@@ -156,24 +317,27 @@ INSERT INTO `administrador` (`ID`, `Nombre`, `Apellido`, `Email`, `Contrasena`) 
 CREATE TABLE `ados` (
   `ID` int(11) NOT NULL,
   `EvaluacionID` int(11) DEFAULT NULL,
-  `Actividad` varchar(300) DEFAULT NULL,
+  `ActividadID` int(11) DEFAULT NULL,
   `Observacion` varchar(300) DEFAULT NULL,
   `Puntuacion` int(11) DEFAULT NULL,
-  `Modulo` varchar(10) DEFAULT NULL,
-  `CategoriaID` int(11) DEFAULT NULL
+  `CategoriaID` int(11) DEFAULT NULL,
+  `Modulo` varchar(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `ados`
 --
 
-INSERT INTO `ados` (`ID`, `EvaluacionID`, `Actividad`, `Observacion`, `Puntuacion`, `Modulo`, `CategoriaID`) VALUES
-(1, 41, 'actividad', 'observación', 1, 'T', 1),
-(2, 41, 'dfdf', 'afdf', 2, 'T', 2),
-(3, 42, 'gfdfds', 'sfdgfd', 1, 'T', 1),
-(4, 43, 'algo', 'sdfasdf', 0, 'T', 1),
-(5, 47, 'jugar con legos', 'el niño adsfsdafasdf', 2, 'T', 1),
-(6, 47, 'gfds', 'ghj', 0, 'T', 1);
+INSERT INTO `ados` (`ID`, `EvaluacionID`, `ActividadID`, `Observacion`, `Puntuacion`, `CategoriaID`, `Modulo`) VALUES
+(13, 103, 4, 'afsd', 1, 1, '1'),
+(14, 104, 13, 'asdf', 2, 2, '4'),
+(15, 104, 14, 'dfgfdgdf', 3, 1, '4'),
+(16, 105, 3, 'algo más', 3, 1, 'T'),
+(17, 105, 1, 'gsdfg', 3, 1, 'T'),
+(18, 105, 2, 'fghfgh', 3, 1, 'T'),
+(19, 106, 3, 'jhgjhg', 0, 1, 'T'),
+(20, 106, 1, 'dfgfdg', 1, 3, 'T'),
+(21, 106, 2, 'fgfgf', 2, 1, 'T');
 
 -- --------------------------------------------------------
 
@@ -192,7 +356,11 @@ CREATE TABLE `categoria` (
 
 INSERT INTO `categoria` (`ID`, `Categoria`) VALUES
 (1, 'Comunicación'),
-(2, 'Imaginación');
+(2, 'Imaginación'),
+(3, 'Interacción social recíproca'),
+(4, 'Juego y uso de materiales'),
+(5, 'Conductas restringidas y repetitivas'),
+(6, 'Otros comportamientos observables');
 
 -- --------------------------------------------------------
 
@@ -218,7 +386,14 @@ INSERT INTO `dsm5` (`ID`, `EvaluacionID`, `Apto`, `Puntuacion`) VALUES
 (7, 67, 'ambos', 21),
 (8, 68, 'adir', 16),
 (9, 80, 'ambos', 21),
-(10, 83, 'ambos', 18);
+(10, 83, 'ambos', 18),
+(11, 84, 'adir', 18),
+(12, 85, 'ambos', 14),
+(13, 88, 'ninguno', 13),
+(14, 89, 'adir', 20),
+(15, 90, 'ambos', 21),
+(16, 95, 'adir', 14),
+(17, 97, 'ados', 20);
 
 -- --------------------------------------------------------
 
@@ -239,10 +414,11 @@ CREATE TABLE `especialista` (
 --
 
 INSERT INTO `especialista` (`ID`, `Nombre`, `Apellido`, `Email`, `Contrasena`) VALUES
-(1, 'paola', 'vidal', 'paola@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
+(1, 'paola', 'vidal', 'paola@gmail.com', '$2b$10$LjfF9G12q.cuZiAcCOLR1.oNzItWhRv.zzL7R8s4Tf6eUnKguhdzi'),
 (2, 'Eyleen', 'Salinas', 'eyleen@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
 (3, 'gggg', 'ggggg', 'maria@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
-(4, 'Prueba', 'Prueba', 'prueba@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC');
+(4, 'Prueba', 'Prueba', 'prueba@gmail.com', '$2b$10$Gps6oXUAfkuA9QUUOIyDz.hW5x.DLO8mOB6DB7FTq//k6PaWh.qBC'),
+(5, 'asdf', 'asdf', 'asdf@gmail.com', '$2b$10$LjfF9G12q.cuZiAcCOLR1.oNzItWhRv.zzL7R8s4Tf6eUnKguhdzi');
 
 -- --------------------------------------------------------
 
@@ -263,11 +439,7 @@ CREATE TABLE `evaluacion` (
 --
 
 INSERT INTO `evaluacion` (`ID`, `PacienteID`, `EspecialistaID`, `Fecha`, `TipoEvaluacion`) VALUES
-(41, 1, 1, '2025-05-16 20:06:42', 'ADOS-2'),
-(42, 2, 1, '2025-05-16 20:18:37', 'ADOS-2'),
-(43, 3, 1, '2025-05-16 20:31:46', 'ADOS-2'),
 (46, 13, 3, '2025-05-17 00:00:00', 'ADI-R'),
-(47, 13, 3, '2025-05-17 03:06:01', 'ADOS-2'),
 (64, 1, 1, '2025-05-23 08:56:16', 'DSM5'),
 (65, 2, 1, '2025-05-23 09:06:33', 'DSM-5'),
 (66, 1, 1, '2025-05-23 15:24:47', 'DSM-5'),
@@ -275,7 +447,24 @@ INSERT INTO `evaluacion` (`ID`, `PacienteID`, `EspecialistaID`, `Fecha`, `TipoEv
 (68, 5, 1, '2025-05-23 16:46:31', 'DSM-5'),
 (80, 1, 1, '2025-05-23 17:26:56', 'DSM-5'),
 (82, 5, 1, '2025-05-23 00:00:00', 'ADI-R'),
-(83, 2, 1, '2025-05-24 01:40:36', 'DSM-5');
+(83, 2, 1, '2025-05-24 01:40:36', 'DSM-5'),
+(84, 15, 1, '2025-05-24 03:35:05', 'DSM-5'),
+(85, 15, 1, '2025-05-24 03:35:51', 'DSM-5'),
+(86, 15, 1, '2025-05-24 00:00:00', 'ADI-R'),
+(88, 16, 1, '2025-05-24 06:18:02', 'DSM-5'),
+(89, 16, 1, '2025-05-24 06:19:25', 'DSM-5'),
+(90, 16, 1, '2025-05-24 06:19:54', 'DSM-5'),
+(91, 16, 1, '2025-05-24 00:00:00', 'ADI-R'),
+(93, 16, 1, '2025-05-24 00:00:00', 'ADI-R'),
+(95, 17, 1, '2025-05-24 14:07:46', 'DSM-5'),
+(96, 17, 1, '2025-05-24 00:00:00', 'ADI-R'),
+(97, 17, 1, '2025-05-24 14:11:06', 'DSM-5'),
+(103, 1, 1, '2025-05-31 19:10:17', 'ADOS-2'),
+(104, 1, 1, '2025-05-31 19:38:13', 'ADOS-2'),
+(105, 1, 1, '2025-05-31 19:46:17', 'ADOS-2'),
+(106, 1, 1, '2025-05-31 19:47:07', 'ADOS-2'),
+(109, 1, 1, '2025-05-31 00:00:00', 'ADI-R'),
+(110, 1, 1, '2025-05-31 00:00:00', 'ADI-R');
 
 -- --------------------------------------------------------
 
@@ -308,7 +497,9 @@ INSERT INTO `paciente` (`ID`, `Nombre`, `Apellido`, `FechaNacimiento`, `Direccio
 (8, 'Miguel', 'Díaz', '1998-08-25 00:00:00', 'Avenida Central 56, Cancún', '9981234567', 'miguel.diaz@email.com'),
 (9, 'Elena', 'Ramírez', '1975-04-10 00:00:00', 'Calle Nogal 78, Querétaro', '4421234567', 'elena.ramirez@email.com'),
 (13, 'ddddddd', 'ddddd', '2020-01-01 00:00:00', 'dddddd', '1212-1212', 'paola2@gmail.com'),
-(14, 'fdsd', 'asdf', '2025-05-17 00:00:00', 'dsfdf', '24543545', 'maria2@gmail.com');
+(15, 'Maicol', 'Monje', '2004-05-23 00:00:00', 'santa anass', '7898-5421', 'maicol@gmail.com'),
+(16, 'Ever', 'Zamora', '2004-02-11 00:00:00', 'santa ana', '1234-1234', 'ever@gmail.com'),
+(17, 'Rodolfo', 'Rodriguez', '2004-01-09 00:00:00', 'santa anaa', '7878-8787', 'rodolfo2@gmail.com');
 
 -- --------------------------------------------------------
 
@@ -385,11 +576,7 @@ CREATE TABLE `reporte` (
 --
 
 INSERT INTO `reporte` (`ID`, `EvaluacionID`, `FechaGeneracion`, `Contenido`) VALUES
-(1, 41, '2025-05-16 00:00:00', 'el niño está rarito'),
-(2, 42, '2025-05-16 00:00:00', 'fdsgsdfg'),
-(3, 43, '2025-05-16 00:00:00', 'sdafasdf'),
 (4, 46, '2025-05-17 00:00:00', 'el niño presenta tal cosa'),
-(5, 47, '2025-05-17 00:00:00', 'el niño tiene tal cosa x2'),
 (17, 64, '2025-05-23 08:56:18', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
 (18, 65, '2025-05-23 09:06:33', 'Bajo nivel de indicios.'),
 (19, 66, '2025-05-23 15:24:47', 'Algunos indicios. Se recomienda observar más.'),
@@ -397,7 +584,21 @@ INSERT INTO `reporte` (`ID`, `EvaluacionID`, `FechaGeneracion`, `Contenido`) VAL
 (21, 68, '2025-05-23 16:46:31', 'Algunos indicios. Se recomienda observar más.'),
 (22, 80, '2025-05-23 17:26:56', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
 (23, 82, '2025-05-23 00:00:00', 'Diagnostico de prueba'),
-(24, 83, '2025-05-24 01:40:36', 'Nivel alto de indicios. Se sugiere evaluación profesional.');
+(24, 83, '2025-05-24 01:40:36', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
+(25, 84, '2025-05-24 03:35:05', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
+(26, 85, '2025-05-24 03:35:51', 'Algunos indicios. Se recomienda observar más.'),
+(27, 86, '2025-05-24 00:00:00', 'Está medio enfermito'),
+(29, 88, '2025-05-24 06:18:02', 'Algunos indicios. Se recomienda observar más.'),
+(30, 89, '2025-05-24 06:19:25', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
+(31, 90, '2025-05-24 06:19:54', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
+(32, 91, '2025-05-24 00:00:00', 'La persona muestra muchos indicios de tener autismo'),
+(35, 95, '2025-05-24 14:07:46', 'Algunos indicios. Se recomienda observar más.'),
+(36, 96, '2025-05-24 00:00:00', 'La persona muestra indicios claros de TEA'),
+(37, 97, '2025-05-24 14:11:06', 'Nivel alto de indicios. Se sugiere evaluación profesional.'),
+(40, 103, '2025-05-31 00:00:00', 'sdfasdf'),
+(41, 104, '2025-05-31 00:00:00', 'fghfhfghgh'),
+(42, 105, '2025-05-31 00:00:00', 'fghjgfhgh'),
+(43, 106, '2025-05-31 00:00:00', 'gfghd');
 
 -- --------------------------------------------------------
 
@@ -464,6 +665,12 @@ INSERT INTO `respuesta` (`ID`, `PreguntaID`, `Respuesta`) VALUES
 --
 
 --
+-- Indexes for table `actividadados`
+--
+ALTER TABLE `actividadados`
+  ADD PRIMARY KEY (`ID`);
+
+--
 -- Indexes for table `adir`
 --
 ALTER TABLE `adir`
@@ -483,7 +690,8 @@ ALTER TABLE `administrador`
 ALTER TABLE `ados`
   ADD PRIMARY KEY (`ID`),
   ADD KEY `EvaluacionID` (`EvaluacionID`),
-  ADD KEY `CategoriaID` (`CategoriaID`);
+  ADD KEY `CategoriaID` (`CategoriaID`),
+  ADD KEY `fk_actividad` (`ActividadID`);
 
 --
 -- Indexes for table `categoria`
@@ -549,28 +757,34 @@ ALTER TABLE `respuesta`
 --
 
 --
+-- AUTO_INCREMENT for table `actividadados`
+--
+ALTER TABLE `actividadados`
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+
+--
 -- AUTO_INCREMENT for table `adir`
 --
 ALTER TABLE `adir`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=184;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=350;
 
 --
 -- AUTO_INCREMENT for table `administrador`
 --
 ALTER TABLE `administrador`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `ados`
 --
 ALTER TABLE `ados`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `categoria`
 --
 ALTER TABLE `categoria`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `dsm5`
@@ -582,19 +796,19 @@ ALTER TABLE `dsm5`
 -- AUTO_INCREMENT for table `especialista`
 --
 ALTER TABLE `especialista`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `evaluacion`
 --
 ALTER TABLE `evaluacion`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=112;
 
 --
 -- AUTO_INCREMENT for table `paciente`
 --
 ALTER TABLE `paciente`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `pregunta`
@@ -612,7 +826,7 @@ ALTER TABLE `preguntadsm5`
 -- AUTO_INCREMENT for table `reporte`
 --
 ALTER TABLE `reporte`
-  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `respuesta`
@@ -636,7 +850,8 @@ ALTER TABLE `adir`
 --
 ALTER TABLE `ados`
   ADD CONSTRAINT `ados_ibfk_1` FOREIGN KEY (`EvaluacionID`) REFERENCES `evaluacion` (`ID`),
-  ADD CONSTRAINT `ados_ibfk_2` FOREIGN KEY (`CategoriaID`) REFERENCES `categoria` (`ID`);
+  ADD CONSTRAINT `ados_ibfk_2` FOREIGN KEY (`CategoriaID`) REFERENCES `categoria` (`ID`),
+  ADD CONSTRAINT `fk_actividad` FOREIGN KEY (`ActividadID`) REFERENCES `actividadados` (`ID`);
 
 --
 -- Constraints for table `dsm5`
