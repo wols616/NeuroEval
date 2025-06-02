@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { FaFilePdf, FaCalendar, FaUserMd, FaUser } from "react-icons/fa";
 import "../styles/reports.css";
 
 const PatientReports = () => {
   const { patientId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -63,9 +64,13 @@ const PatientReports = () => {
     );
   }
 
-  const handleViewReport = (report) => {
-    // Aquí puedes implementar la lógica para ver el reporte completo
-    console.log("Ver reporte:", report);
+  const handleGoToDetails = (report) => {
+    if (report.tipoEvaluacion === "ADOS-2") {
+      navigate(`/evaluaciones/ados/${report.EvaluacionID}`);
+    } else if (report.tipoEvaluacion !== "ADOS-2") {
+      alert("ADIR y DSM5 reportes no están implementados aún.");
+      //navigate(`/adir/${report.EvaluacionID}`);
+    }
   };
 
   if (reports.length === 0) {
@@ -114,9 +119,9 @@ const PatientReports = () => {
             <div className="report-actions">
               <button
                 className="btn btn-primary btn-sm"
-                onClick={() => handleViewReport(report)}
+                onClick={() => handleGoToDetails(report)}
               >
-                Algo
+                Detalles
               </button>
             </div>
           </div>

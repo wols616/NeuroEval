@@ -20,16 +20,22 @@ import ProtectedRoute from "./components/ProtectedRoute.js";
 import Layout from "./components/Layout";
 import PatientSelection from "./pages/PatientSelection";
 import AdosModuleSelection from "./components/AdosModuleSelection.js";
+import AdosEvaluationView from "./pages/AdosEvaluationView.js";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 function PrivateRoute({ children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+
   return user ? children : <Navigate to="/login" />;
 }
 
 function PublicRoute({ children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return null;
   return !user ? children : <Navigate to="/dashboard" />;
 }
 
@@ -106,6 +112,17 @@ function App() {
               <PrivateRoute>
                 <Layout>
                   <AdosEvaluation />
+                </Layout>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/evaluaciones/ados/:evaluacionID"
+            element={
+              <PrivateRoute>
+                <Layout>
+                  <AdosEvaluationView />
                 </Layout>
               </PrivateRoute>
             }

@@ -205,7 +205,7 @@ const AdosEvaluation = () => {
       }
 
       alert("Evaluación guardada exitosamente");
-      navigate("/dashboard");
+      navigate(`/evaluaciones/ados/${evaluacionID}`);
     } catch (error) {
       console.error("Error al guardar evaluación:", error);
       alert("Error al guardar la evaluación: " + error.message);

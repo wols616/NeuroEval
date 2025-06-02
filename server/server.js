@@ -572,6 +572,72 @@ app.get("/api/activities", (req, res) => {
   });
 });
 
+// Obtener todas las actividades y puntuaciones de una evaluación ADOS-2
+app.get("/api/ados/evaluacion/:evaluacionID", (req, res) => {
+  const { evaluacionID } = req.params;
+
+  const query = `
+    SELECT 
+      a.ID AS ActividadID,
+      a.Actividad AS NombreActividad,
+      a.Descripcion,
+      a.NombreModulo AS Modulo,
+      ad.Puntuacion,
+      ad.Observacion,
+      c.Categoria
+    FROM Actividadados a
+    LEFT JOIN Ados ad ON a.ID = ad.ActividadID AND ad.EvaluacionID = ?
+    LEFT JOIN Categoria c ON ad.CategoriaID = c.ID
+    WHERE ad.Puntuacion IS NOT NULL AND ad.Observacion IS NOT NULL
+    ORDER BY a.ID;
+  `;
+
+  db.query(query, [evaluacionID], (err, results) => {
+    if (err) {
+      console.error("Error al obtener actividades ADOS:", err);
+      return res.status(500).json({ error: "Error al obtener actividades" });
+    }
+
+    // Organizar por módulo y categoría
+    const organizedData = {
+      modulos: {},
+      totales: {},
+    };
+
+    results.forEach((item) => {
+      const modulo = item.Modulo || "Sin módulo";
+      const categoria = item.Categoria || "Sin categoría";
+
+      if (!organizedData.modulos[modulo]) {
+        organizedData.modulos[modulo] = { categorias: {} };
+      }
+
+      if (!organizedData.modulos[modulo].categorias[categoria]) {
+        organizedData.modulos[modulo].categorias[categoria] = {
+          actividades: [],
+        };
+      }
+
+      organizedData.modulos[modulo].categorias[categoria].actividades.push({
+        id: item.ActividadID,
+        nombre: item.NombreActividad,
+        descripcion: item.Descripcion,
+        puntuacion: item.Puntuacion || 0,
+        observacion: item.Observacion || "",
+      });
+
+      // Totales por categoría
+      if (!organizedData.totales[categoria]) {
+        organizedData.totales[categoria] = 0;
+      }
+
+      organizedData.totales[categoria] += item.Puntuacion || 0;
+    });
+
+    res.json(organizedData);
+  });
+});
+
 app.post("/api/reportes", (req, res) => {
   try {
     const { EvaluacionID, FechaGeneracion, Contenido } = req.body;
