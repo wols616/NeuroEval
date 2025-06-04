@@ -32,8 +32,16 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token');
   };
 
+  const hasRole = (requiredRoles) => {
+    if (!user || !user.role) return false;
+    if (Array.isArray(requiredRoles)) {
+      return requiredRoles.includes(user.role);
+    }
+    return user.role === requiredRoles;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout: handleLogout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, logout: handleLogout, loading, hasRole }}>
       {children}
     </AuthContext.Provider>
   );

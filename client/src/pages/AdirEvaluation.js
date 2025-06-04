@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const puntuaciones = [
@@ -10,21 +10,22 @@ const puntuaciones = [
   { value: 1, label: "1 - Presencia leve o dudosa del comportamiento" },
   { value: 2, label: "2 - Presencia clara y anormal del comportamiento" },
   {
-    value: 3,
+    value: 2,
     label: "3 - Comportamiento extremadamente anormal (raramente se usa)",
   },
   {
-    value: 7,
+    value: 0,
     label: "7 - Comportamiento anormal pero no específico del autismo",
   },
-  { value: 8, label: "8 - Información no disponible o inaplicable" },
-  { value: 9, label: "9 - No sabe / no recuerda" },
+  { value: 0, label: "8 - Información no disponible o inaplicable" },
+  { value: 0, label: "9 - No sabe / no recuerda" },
 ];
 
 export default function AdirEvaluation() {
   const { patientId } = useParams();
   const pacienteID = parseInt(patientId);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [evaluacionID, setEvaluacionID] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -208,8 +209,8 @@ export default function AdirEvaluation() {
         throw new Error("Error al guardar el diagnóstico");
       }
 
-      // Redirigir o mostrar mensaje de éxito
-      alert("Evaluación completada y guardada exitosamente!");
+      //Llevar a la página de resultado
+      navigate(`/evaluaciones/adir/${evaluacionID}`);
     } catch (err) {
       console.error("Error al guardar diagnóstico:", err);
     }

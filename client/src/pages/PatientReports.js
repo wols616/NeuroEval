@@ -67,6 +67,9 @@ const PatientReports = () => {
   const handleGoToDetails = (report) => {
     if (report.tipoEvaluacion === "ADOS-2") {
       navigate(`/evaluaciones/ados/${report.EvaluacionID}`);
+    }
+    if (report.tipoEvaluacion === "ADI-R") {
+      navigate(`/evaluaciones/adir/${report.EvaluacionID}`);
     } else if (report.tipoEvaluacion !== "ADOS-2") {
       alert("ADIR y DSM5 reportes no están implementados aún.");
       //navigate(`/adir/${report.EvaluacionID}`);
@@ -94,38 +97,41 @@ const PatientReports = () => {
         <h2 className="mb-4">
           Reportes de {patient.Nombre} {patient.Apellido}
         </h2>
-        {reports.map((report) => (
-          <div key={report.ID} className="report-card mb-3">
-            <div className="report-header">
-              <div className="report-date">
-                <FaCalendar className="me-2" />
-                {report.fecha}
+        {reports
+          .filter((report) => report.tipoEvaluacion !== "DSM-5")
+          .map((report) => (
+            <div key={report.ID} className="report-card mb-3">
+              <div className="report-header">
+                <div className="report-date">
+                  <FaCalendar className="me-2" />
+                  {report.fecha}
+                </div>
+                <div className="report-type">
+                  <FaFilePdf className="me-2" />
+                  {report.tipoEvaluacion}
+                </div>
               </div>
-              <div className="report-type">
-                <FaFilePdf className="me-2" />
-                {report.tipoEvaluacion}
+              <div className="report-content">
+                <div className="report-doctor">
+                  <FaUserMd className="me-2" />
+                  {report.especialistaNombre} {report.especialistaApellido}
+                </div>
+                <div className="report-diagnosis mt-3">
+                  <h5>Diagnóstico:</h5>
+                  <p>{report.Contenido}</p>
+                </div>
+              </div>
+              <div className="report-actions">
+                <button
+                  className="btn btn-primary btn-sm me-2"
+                  onClick={() => handleGoToDetails(report)}
+                >
+                  Detalles
+                </button>
+                <button className="btn btn-primary btn-sm">Imprimir</button>
               </div>
             </div>
-            <div className="report-content">
-              <div className="report-doctor">
-                <FaUserMd className="me-2" />
-                {report.especialistaNombre} {report.especialistaApellido}
-              </div>
-              <div className="report-diagnosis mt-3">
-                <h5>Diagnóstico:</h5>
-                <p>{report.Contenido}</p>
-              </div>
-            </div>
-            <div className="report-actions">
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => handleGoToDetails(report)}
-              >
-                Detalles
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
       </div>
     </div>
   );

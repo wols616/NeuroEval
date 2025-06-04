@@ -507,6 +507,113 @@ app.delete("/api/adir/:evaluacionID/:preguntaID", async (req, res) => {
   }
 });
 
+// Endpoint para obtener resultados ADIR organizados por categoría
+app.get("/api/adir/resultados/:evaluacionID", async (req, res) => {
+  try {
+    const { evaluacionID } = req.params;
+
+    // 1. Obtener todas las respuestas con sus puntuaciones para esta evaluación
+    const respuestasQuery = `
+      SELECT 
+        p.ID AS PreguntaID,
+        p.Pregunta,
+        p.Categoria,
+        r.ID AS RespuestaID,
+        r.Respuesta,
+        a.Puntuacion
+      FROM Adir a
+      JOIN Respuesta r ON a.RespuestaID = r.ID
+      JOIN Pregunta p ON r.PreguntaID = p.ID
+      WHERE a.EvaluacionID = ?
+      ORDER BY p.Categoria, p.ID, r.ID
+    `;
+
+    const respuestas = await new Promise((resolve, reject) => {
+      db.query(respuestasQuery, [evaluacionID], (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    });
+
+    if (!respuestas || respuestas.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No se encontraron respuestas para esta evaluación" });
+    }
+
+    // 2. Organizar los datos por categoría
+    const resultados = {
+      categorias: {},
+      //totalGeneral: 0,
+    };
+
+    // Definir los títulos de las categorías
+    const titulosCategorias = {
+      A1: "A. Alteraciones Cualitativas de la Intención Social Reciproca",
+      A2: "A. Alteraciones Cualitativas de la Intención Social Reciproca",
+      A3: "A. Alteraciones Cualitativas de la Intención Social Reciproca",
+      B1: "B. Alteraciones Cualitativas de la Comunicación",
+      B2: "B. Alteraciones Cualitativas de la Comunicación",
+      B3: "B. Alteraciones Cualitativas de la Comunicación",
+      B4: "B. Alteraciones Cualitativas de la Comunicación",
+      C1: "C. PATRONES DE CONDUCTA RESTRINGIDOS, REPETITIVOS Y ESTEREOTIPADOS",
+      C2: "C. PATRONES DE CONDUCTA RESTRINGIDOS, REPETITIVOS Y ESTEREOTIPADOS",
+      C3: "C. PATRONES DE CONDUCTA RESTRINGIDOS, REPETITIVOS Y ESTEREOTIPADOS",
+      C4: "C. PATRONES DE CONDUCTA RESTRINGIDOS, REPETITIVOS Y ESTEREOTIPADOS",
+      D1: "D. Conductas anormales antes de los 36 meses de edad",
+    };
+
+    // Procesar cada respuesta
+    respuestas.forEach((item) => {
+      const categoriaBase = item.Categoria.substring(0, 1); // A, B, C o D
+      const tituloCategoria = titulosCategorias[item.Categoria];
+
+      if (!resultados.categorias[categoriaBase]) {
+        resultados.categorias[categoriaBase] = {
+          titulo: tituloCategoria,
+          items: {},
+          total: 0,
+        };
+      }
+
+      // Para categoría D (especial)
+      if (categoriaBase === "D") {
+        if (!resultados.categorias[categoriaBase].items[item.Categoria]) {
+          resultados.categorias[categoriaBase].items[item.Categoria] = {
+            pregunta: item.Pregunta,
+            respuestas: [],
+          };
+        }
+        resultados.categorias[categoriaBase].items[
+          item.Categoria
+        ].respuestas.push({
+          respuesta: item.Respuesta,
+          puntuacion: item.Puntuacion,
+        });
+        resultados.categorias[categoriaBase].total += item.Puntuacion;
+      }
+      // Para otras categorías (A, B, C)
+      else {
+        if (!resultados.categorias[categoriaBase].items[item.Categoria]) {
+          resultados.categorias[categoriaBase].items[item.Categoria] = {
+            pregunta: item.Pregunta,
+            puntuacion: item.Puntuacion,
+          };
+          resultados.categorias[categoriaBase].total += item.Puntuacion;
+          //resultados.totalGeneral += item.Puntuacion;
+        }
+      }
+    });
+
+    res.json(resultados);
+  } catch (error) {
+    console.error("Error en /api/adir/resultados:", error);
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor", details: error.message });
+  }
+});
+
 app.post("/api/ados", (req, res) => {
   try {
     const {
