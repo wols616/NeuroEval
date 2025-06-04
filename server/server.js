@@ -823,6 +823,17 @@ app.get("/api/reportes", authenticateToken, (req, res) => {
   });
 });
 
+app.get("/api/reporte-by-evaluacionID/:evaluacionID", (req, res) => {
+  const { evaluacionID } = req.params;
+  const query = `
+        SELECT * FROM Reporte WHERE EvaluacionID = ? LIMIT 1
+    `;
+  db.query(query, [evaluacionID], (err, results) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    res.json(results);
+  });
+});
+
 app.delete("/api/reportes/:id", (req, res) => {
   const query = "DELETE FROM Reporte WHERE ID = ?";
   db.query(query, [req.params.id], (err, results) => {

@@ -43,3 +43,62 @@
   padding: 0.25rem 0.5rem;
   font-size: 0.875rem;
 }
+
+/* reports.css */
+.modal-print {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1050;
+}
+
+.modal-content-print {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 8px;
+  max-width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.modal-actions-print {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.printable-report {
+  background-color: white;
+  color: black;
+}
+
+/* Ocultar elementos en la versión impresa */
+@media print {
+  .no-print,
+  .modal-actions-print {
+    display: none !important;
+  }
+
+  .printable-report {
+    padding: 0;
+    margin: 0;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+}
+
+.blurred {
+  filter: blur(4px);
+  pointer-events: none;
+}

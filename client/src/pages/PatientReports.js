@@ -1,7 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { FaFilePdf, FaCalendar, FaUserMd, FaUser } from "react-icons/fa";
+import {
+  FaFilePdf,
+  FaCalendar,
+  FaUserMd,
+  FaUser,
+  FaPrint,
+} from "react-icons/fa";
+import PrintableReport from "../components/PrintableReport";
+import { useReactToPrint } from "react-to-print";
 import "../styles/reports.css";
 
 const PatientReports = () => {
@@ -11,6 +19,24 @@ const PatientReports = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [patient, setPatient] = useState(null);
+  const [printableData, setPrintableData] = useState(null);
+  const [showPrintDialog, setShowPrintDialog] = useState(false);
+
+  // Use useRef instead of React.useRef
+  const printableRef = useRef();
+
+  // Updated hook for printing with new API
+  const handlePrint = useReactToPrint({
+    contentRef: printableRef, // Use contentRef instead of content
+    onAfterPrint: () => {
+      setShowPrintDialog(false);
+      setPrintableData(null); // Clean up data after printing
+    },
+    onPrintError: (error) => {
+      console.error("Print error:", error);
+      alert("Error al imprimir el reporte");
+    },
+  });
 
   useEffect(() => {
     const fetchReports = async () => {
@@ -51,6 +77,84 @@ const PatientReports = () => {
     fetchPatient();
     setLoading(false);
   }, [patientId]);
+
+  const handlePrintReport = async (report) => {
+    try {
+      let response;
+      if (report.tipoEvaluacion === "ADOS-2") {
+        response = await fetch(
+          `http://localhost:5000/api/ados/evaluacion/${report.EvaluacionID}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      } else if (report.tipoEvaluacion === "ADI-R") {
+        response = await fetch(
+          `http://localhost:5000/api/adir/resultados/${report.EvaluacionID}`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const observacionResponse = await fetch(
+        `http://localhost:5000/api/reporte-by-evaluacionID/${report.EvaluacionID}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = await response.json();
+      const dataObservacion = await observacionResponse.json();
+
+      const reportData = {
+        ...data,
+        tipoEvaluacion: report.tipoEvaluacion,
+        pacienteNombre: `${patient.Nombre} ${patient.Apellido}`,
+        fecha: report.fecha,
+        especialistaNombre: `${report.especialistaNombre} ${report.especialistaApellido}`,
+        observaciones: dataObservacion[0].Contenido || "No hay observaciones",
+      };
+
+      setPrintableData(reportData);
+      setShowPrintDialog(true);
+
+      // Wait a bit for the modal to fully render before allowing print
+      setTimeout(() => {
+        // The print button in the modal will trigger the actual print
+      }, 100);
+    } catch (error) {
+      console.error("Error al cargar datos para imprimir:", error);
+      alert("Error al preparar el reporte para imprimir");
+    }
+  };
+
+  // Function to trigger print with validation
+  const triggerPrint = () => {
+    if (!printableRef.current) {
+      console.error("Print ref not ready");
+      alert("El reporte no está listo para imprimir. Inténtalo de nuevo.");
+      return;
+    }
+
+    if (!printableData) {
+      console.error("No printable data available");
+      alert("No hay datos para imprimir.");
+      return;
+    }
+
+    handlePrint();
+  };
 
   if (loading || !patient) {
     return (
@@ -93,6 +197,34 @@ const PatientReports = () => {
 
   return (
     <div className="container mt-5">
+      {/* Diálogo de impresión */}
+      {showPrintDialog && printableData && (
+        <div className="modal-print">
+          <div className="modal-content-print">
+            <PrintableReport
+              ref={printableRef}
+              reportData={printableData}
+              reportType={printableData?.tipoEvaluacion}
+            />
+            <div className="modal-actions-print">
+              <button className="btn btn-primary me-2" onClick={triggerPrint}>
+                <FaPrint className="me-2" />
+                Imprimir
+              </button>
+              <button
+                className="btn btn-secondary"
+                onClick={() => {
+                  setShowPrintDialog(false);
+                  setPrintableData(null);
+                }}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="reports-container">
         <h2 className="mb-4">
           Reportes de {patient.Nombre} {patient.Apellido}
@@ -128,7 +260,13 @@ const PatientReports = () => {
                 >
                   Detalles
                 </button>
-                <button className="btn btn-primary btn-sm">Imprimir</button>
+                <button
+                  className="btn btn-primary btn-sm"
+                  onClick={() => handlePrintReport(report)}
+                >
+                  <FaPrint className="me-1" />
+                  Imprimir
+                </button>
               </div>
             </div>
           ))}
