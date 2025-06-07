@@ -286,7 +286,7 @@ const Patients = () => {
   }
 
   return (
-    <div className="container-fluid py-4">
+    <div className="container py-4">
       <div className="row">
         <div className="col-12">
           <div className="card shadow">

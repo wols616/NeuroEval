@@ -294,10 +294,10 @@ const Dashboard = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="action-card"
-              onClick={() => navigate("/specialists")}
+              onClick={() => navigate("/users")}
             >
               <i className="bi bi-person-badge"></i>
-              <span>Gestión de Especialistas</span>
+              <span>Gestión de Usuarios</span>
             </motion.button>
           )}
         </motion.div>
