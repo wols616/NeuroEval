@@ -1,11 +1,25 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import {
+  Container,
+  Card,
+  Form,
+  Button,
+  Spinner,
+  Alert,
+  Row,
+  Col,
+  InputGroup,
+  FormControl,
+} from "react-bootstrap";
+import Swal from "sweetalert2";
 
 const Profile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [initialProfile, setInitialProfile] = useState(null);
 
   useEffect(() => {
@@ -38,6 +52,12 @@ const Profile = () => {
     } catch (error) {
       console.error("Error fetching profile:", error);
       setError(error.message || "Error al cargar el perfil");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Error al cargar el perfil",
+        confirmButtonColor: "#3085d6",
+      });
     } finally {
       setLoading(false);
     }
@@ -64,6 +84,14 @@ const Profile = () => {
         return;
       }
 
+      Swal.fire({
+        title: "Actualizando perfil...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const response = await fetch(
         `http://localhost:5000/api/${user.role.toLowerCase()}/${user.id}`,
         {
@@ -77,17 +105,19 @@ const Profile = () => {
       );
 
       const responseData = await response.json();
-      console.log("Respuesta del servidor:", responseData); // Log para depuración
 
       if (response.ok) {
         setError("");
-        // Actualizar el estado local con los datos devueltos por el servidor
         setProfile(responseData.data);
         setInitialProfile(responseData.data);
-        // Mostrar mensaje de éxito
-        setTimeout(() => setError("Perfil actualizado exitosamente"), 100);
+        Swal.fire({
+          icon: "success",
+          title: "Éxito",
+          text: "Perfil actualizado correctamente",
+          confirmButtonColor: "#3085d6",
+        });
       } else {
-        setError(
+        throw new Error(
           responseData.error ||
             responseData.details ||
             "Error al actualizar el perfil"
@@ -95,108 +125,150 @@ const Profile = () => {
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      setError("Error al actualizar el perfil");
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Error al actualizar el perfil",
+        confirmButtonColor: "#3085d6",
+      });
     }
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-500"></div>
-      </div>
+      <Container className="d-flex justify-content-center align-items-center min-vh-100">
+        <Spinner animation="border" variant="primary" />
+      </Container>
     );
   }
 
   if (!profile) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-red-600">{error}</p>
-      </div>
+      <Container className="d-flex justify-content-center align-items-center min-vh-100">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="d-flex flex-column align-items-center p-5">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+    <Container className="py-5">
+      <Row className="justify-content-center">
+        <Col xl={8} lg={10}>
+          <Card className="shadow">
+            <Card.Header className="bg-primary text-white">
+              <h2 className="mb-0">
+                <i className="bi bi-person-circle me-2"></i>
                 Perfil de {user.role}
               </h2>
+            </Card.Header>
 
+            <Card.Body>
               {error && (
-                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                <Alert variant="danger" className="mb-4">
                   {error}
-                </div>
+                </Alert>
               )}
 
-              <form onSubmit={handleUpdate} className="space-y-6">
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  <div className="my-2">
-                    <label className="" style={{ fontWeight: "bold" }}>
-                      Nombre
-                    </label>
-                    <input
-                      type="text"
-                      name="nombre"
-                      value={profile.Nombre}
-                      onChange={(e) =>
-                        setProfile((prev) => ({
-                          ...prev,
-                          Nombre: e.target.value,
-                        }))
-                      }
-                      className="input-group"
-                    />
-                  </div>
-                  <div className="my-2">
-                    <label className="" style={{ fontWeight: "bold" }}>
-                      Apellido
-                    </label>
-                    <input
-                      type="text"
-                      name="apellido"
-                      value={profile.Apellido}
-                      onChange={(e) =>
-                        setProfile((prev) => ({
-                          ...prev,
-                          Apellido: e.target.value,
-                        }))
-                      }
-                      className="input-group"
-                    />
-                  </div>
-                  <div className="my-2">
-                    <label className="" style={{ fontWeight: "bold" }}>
-                      Email
-                    </label>
-                    <input
+              {success && (
+                <Alert variant="success" className="mb-4">
+                  {success}
+                </Alert>
+              )}
+
+              <Form onSubmit={handleUpdate}>
+                <Row className="mb-4">
+                  <Col md={6}>
+                    <Form.Group controlId="formNombre" className="mb-3">
+                      <Form.Label>
+                        <strong>Nombre</strong>
+                      </Form.Label>
+                      <InputGroup>
+                        <InputGroup.Text>
+                          <i className="bi bi-person-fill"></i>
+                        </InputGroup.Text>
+                        <FormControl
+                          type="text"
+                          name="nombre"
+                          value={profile.Nombre || ""}
+                          onChange={(e) =>
+                            setProfile((prev) => ({
+                              ...prev,
+                              Nombre: e.target.value,
+                            }))
+                          }
+                          required
+                        />
+                      </InputGroup>
+                    </Form.Group>
+                  </Col>
+
+                  <Col md={6}>
+                    <Form.Group controlId="formApellido" className="mb-3">
+                      <Form.Label>
+                        <strong>Apellido</strong>
+                      </Form.Label>
+                      <InputGroup>
+                        <InputGroup.Text>
+                          <i className="bi bi-person-fill"></i>
+                        </InputGroup.Text>
+                        <FormControl
+                          type="text"
+                          name="apellido"
+                          value={profile.Apellido || ""}
+                          onChange={(e) =>
+                            setProfile((prev) => ({
+                              ...prev,
+                              Apellido: e.target.value,
+                            }))
+                          }
+                          required
+                        />
+                      </InputGroup>
+                    </Form.Group>
+                  </Col>
+                </Row>
+
+                <Form.Group controlId="formEmail" className="mb-4">
+                  <Form.Label>
+                    <strong>Email</strong>
+                  </Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text>
+                      <i className="bi bi-envelope-fill"></i>
+                    </InputGroup.Text>
+                    <FormControl
                       type="email"
                       name="email"
-                      value={profile.Email}
+                      value={profile.Email || ""}
                       onChange={(e) =>
                         setProfile((prev) => ({
                           ...prev,
                           Email: e.target.value,
                         }))
                       }
-                      className="input-group"
+                      required
                     />
-                  </div>
-                </div>
+                  </InputGroup>
+                </Form.Group>
 
-                <div className="mt-8">
-                  <button type="submit" className="btn btn-primary">
+                <div className="d-flex justify-content-end">
+                  <Button variant="primary" type="submit" className="px-4 py-2">
+                    <i className="bi bi-save-fill me-2"></i>
                     Actualizar Perfil
-                  </button>
+                  </Button>
                 </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+              </Form>
+            </Card.Body>
+
+            <Card.Footer className="bg-light">
+              <small className="text-muted">
+                Última actualización: {new Date().toLocaleDateString()}
+              </small>
+            </Card.Footer>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 };
 
