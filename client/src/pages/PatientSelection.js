@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import { FaUser, FaArrowRight } from "react-icons/fa";
+import { FaUser, FaArrowRight, FaSearch } from "react-icons/fa";
 import ReportsList from "../components/ReportsList";
 import ConsentModal from "../components/ConsentModal";
 import "../styles/patient-selection.css";
@@ -11,9 +11,49 @@ const PatientSelection = () => {
   const location = useLocation();
   const { user } = useAuth();
   const [patients, setPatients] = useState([]);
+  const [filteredPatients, setFilteredPatients] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [selectedPatientId, setSelectedPatientId] = useState(null);
   const [showConsentModal, setShowConsentModal] = useState(false);
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/patients", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const data = await response.json();
+        setPatients(data);
+        setFilteredPatients(data); // Inicialmente mostrar todos los pacientes
+        setLoading(false);
+      } catch (error) {
+        console.error("Error al cargar pacientes:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchPatients();
+  }, []);
+
+  useEffect(() => {
+    // Filtrar pacientes cuando cambia el término de búsqueda
+    if (searchTerm.trim() === "") {
+      setFilteredPatients(patients);
+    } else {
+      const filtered = patients.filter(
+        (patient) =>
+          patient.Nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          patient.Apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          `${patient.Nombre} ${patient.Apellido}`
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase())
+      );
+      setFilteredPatients(filtered);
+    }
+  }, [searchTerm, patients]);
 
   const handleAcceptConsent = () => {
     setShowConsentModal(false);
@@ -109,26 +149,6 @@ const PatientSelection = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/patients", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const data = await response.json();
-        setPatients(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error al cargar pacientes:", error);
-        setLoading(false);
-      }
-    };
-
-    fetchPatients();
-  }, []);
-
   const calculateAge = (fechaNacimiento) => {
     const birthDate = new Date(fechaNacimiento);
     const today = new Date();
@@ -189,31 +209,58 @@ const PatientSelection = () => {
       />
 
       <div className={`patient-list ${showConsentModal ? "blurred" : ""}`}>
-        <h3 className="mb-4">{currentPageTitle}</h3>
-        {patients.map((patient) => (
-          <div
-            key={patient.ID}
-            className={`patient-card mb-3 ${showConsentModal ? "hidden" : ""}`}
-          >
-            <div className="patient-info">
-              <FaUser className="patient-icon me-2" />
-              <div>
-                <h5>
-                  {patient.Nombre} {patient.Apellido}
-                </h5>
-                <p className="text-muted">
-                  Edad {calculateAge(patient.FechaNacimiento)} años
-                </p>
-              </div>
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <h3>{currentPageTitle}</h3>
+          <div className="search-bar" style={{ width: "300px" }}>
+            <div className="input-group">
+              <span className="input-group-text">
+                <FaSearch />
+              </span>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Buscar paciente..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            <button
-              className="btn btn-primary select-patient-btn"
-              onClick={() => handlePatientSelect(patient.ID)}
-            >
-              Seleccionar <FaArrowRight className="ms-2" />
-            </button>
           </div>
-        ))}
+        </div>
+
+        {filteredPatients.length === 0 ? (
+          <div className="alert alert-info">
+            {searchTerm.trim() === ""
+              ? "No hay pacientes registrados"
+              : "No se encontraron pacientes que coincidan con la búsqueda"}
+          </div>
+        ) : (
+          filteredPatients.map((patient) => (
+            <div
+              key={patient.ID}
+              className={`patient-card mb-3 ${
+                showConsentModal ? "hidden" : ""
+              }`}
+            >
+              <div className="patient-info">
+                <FaUser className="patient-icon me-2" />
+                <div>
+                  <h5>
+                    {patient.Nombre} {patient.Apellido}
+                  </h5>
+                  <p className="text-muted">
+                    Edad {calculateAge(patient.FechaNacimiento)} años
+                  </p>
+                </div>
+              </div>
+              <button
+                className="btn btn-primary select-patient-btn"
+                onClick={() => handlePatientSelect(patient.ID)}
+              >
+                Seleccionar <FaArrowRight className="ms-2" />
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

@@ -115,19 +115,6 @@
     color: white;
 }
 
-.finalize-button {
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.finalize-button:hover {
-    background: #007bff;
-}
-
 .overlay {
     position: fixed;
     top: 0;

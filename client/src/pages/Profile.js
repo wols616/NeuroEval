@@ -21,6 +21,17 @@ const Profile = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [initialProfile, setInitialProfile] = useState(null);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [passwordErrors, setPasswordErrors] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
 
   useEffect(() => {
     fetchProfile();
@@ -131,6 +142,155 @@ const Profile = () => {
         text: error.message || "Error al actualizar el perfil",
         confirmButtonColor: "#3085d6",
       });
+    }
+  };
+
+  const validatePassword = (password) => {
+    // Validar que tenga al menos una mayúscula, una minúscula y un número
+    const hasUpperCase = /[A-Z]/.test(password);
+    const hasLowerCase = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+
+    return hasUpperCase && hasLowerCase && hasNumber;
+  };
+
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswordData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    // Validación en tiempo real
+    if (name === "newPassword") {
+      if (value.length > 0 && !validatePassword(value)) {
+        setPasswordErrors((prev) => ({
+          ...prev,
+          newPassword:
+            "La contraseña debe contener mayúsculas, minúsculas y al menos un número",
+        }));
+      } else {
+        setPasswordErrors((prev) => ({
+          ...prev,
+          newPassword: "",
+        }));
+      }
+    }
+
+    if (name === "confirmPassword") {
+      if (value !== passwordData.newPassword) {
+        setPasswordErrors((prev) => ({
+          ...prev,
+          confirmPassword: "Las contraseñas no coinciden",
+        }));
+      } else {
+        setPasswordErrors((prev) => ({
+          ...prev,
+          confirmPassword: "",
+        }));
+      }
+    }
+  };
+
+  const handlePasswordSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validaciones adicionales antes de enviar
+    if (!passwordData.currentPassword) {
+      setPasswordErrors((prev) => ({
+        ...prev,
+        currentPassword: "Ingrese su contraseña actual",
+      }));
+      return;
+    }
+
+    if (!passwordData.newPassword) {
+      setPasswordErrors((prev) => ({
+        ...prev,
+        newPassword: "Ingrese una nueva contraseña",
+      }));
+      return;
+    }
+
+    if (!validatePassword(passwordData.newPassword)) {
+      setPasswordErrors((prev) => ({
+        ...prev,
+        newPassword:
+          "La contraseña debe contener mayúsculas, minúsculas y al menos un número",
+      }));
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordErrors((prev) => ({
+        ...prev,
+        confirmPassword: "Las contraseñas no coinciden",
+      }));
+      return;
+    }
+
+    try {
+      Swal.fire({
+        title: "Cambiando contraseña...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
+      const response = await fetch(
+        "http://localhost:5000/api/auth/change-password",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify({
+            currentPassword: passwordData.currentPassword,
+            newPassword: passwordData.newPassword,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: "success",
+          title: "Éxito",
+          text: "Contraseña actualizada correctamente",
+          confirmButtonColor: "#3085d6",
+        });
+        setPasswordData({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+        setShowPasswordForm(false);
+        setPasswordErrors({
+          currentPassword: "",
+          newPassword: "",
+          confirmPassword: "",
+        });
+      } else {
+        throw new Error(data.error || "Error al cambiar la contraseña");
+      }
+    } catch (error) {
+      console.error("Error changing password:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: error.message || "Error al cambiar la contraseña",
+        confirmButtonColor: "#3085d6",
+      });
+
+      if (error.message.includes("Current password is incorrect")) {
+        setPasswordErrors((prev) => ({
+          ...prev,
+          currentPassword: "La contraseña actual es incorrecta",
+        }));
+      }
     }
   };
 
@@ -251,13 +411,106 @@ const Profile = () => {
                   </InputGroup>
                 </Form.Group>
 
-                <div className="d-flex justify-content-end">
+                <div className="d-flex justify-content-between">
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowPasswordForm(!showPasswordForm)}
+                    className="px-4 py-2"
+                  >
+                    <i className="bi bi-key-fill me-2"></i>
+                    {showPasswordForm ? "Cancelar" : "Cambiar Contraseña"}
+                  </Button>
+
                   <Button variant="primary" type="submit" className="px-4 py-2">
                     <i className="bi bi-save-fill me-2"></i>
                     Actualizar Perfil
                   </Button>
                 </div>
               </Form>
+
+              {showPasswordForm && (
+                <Form onSubmit={handlePasswordSubmit} className="mt-4">
+                  <h5 className="mb-3">Cambiar Contraseña</h5>
+
+                  <Form.Group controlId="formCurrentPassword" className="mb-3">
+                    <Form.Label>
+                      <strong>Contraseña Actual</strong>
+                    </Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        <i className="bi bi-lock-fill"></i>
+                      </InputGroup.Text>
+                      <FormControl
+                        type="password"
+                        name="currentPassword"
+                        value={passwordData.currentPassword}
+                        onChange={handlePasswordChange}
+                        isInvalid={!!passwordErrors.currentPassword}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {passwordErrors.currentPassword}
+                      </Form.Control.Feedback>
+                    </InputGroup>
+                  </Form.Group>
+
+                  <Form.Group controlId="formNewPassword" className="mb-3">
+                    <Form.Label>
+                      <strong>Nueva Contraseña</strong>
+                    </Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        <i className="bi bi-lock-fill"></i>
+                      </InputGroup.Text>
+                      <FormControl
+                        type="password"
+                        name="newPassword"
+                        value={passwordData.newPassword}
+                        onChange={handlePasswordChange}
+                        isInvalid={!!passwordErrors.newPassword}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {passwordErrors.newPassword}
+                      </Form.Control.Feedback>
+                    </InputGroup>
+                    <Form.Text muted>
+                      La contraseña debe contener mayúsculas, minúsculas y al
+                      menos un número.
+                    </Form.Text>
+                  </Form.Group>
+
+                  <Form.Group controlId="formConfirmPassword" className="mb-4">
+                    <Form.Label>
+                      <strong>Confirmar Nueva Contraseña</strong>
+                    </Form.Label>
+                    <InputGroup>
+                      <InputGroup.Text>
+                        <i className="bi bi-lock-fill"></i>
+                      </InputGroup.Text>
+                      <FormControl
+                        type="password"
+                        name="confirmPassword"
+                        value={passwordData.confirmPassword}
+                        onChange={handlePasswordChange}
+                        isInvalid={!!passwordErrors.confirmPassword}
+                      />
+                      <Form.Control.Feedback type="invalid">
+                        {passwordErrors.confirmPassword}
+                      </Form.Control.Feedback>
+                    </InputGroup>
+                  </Form.Group>
+
+                  <div className="d-flex justify-content-end">
+                    <Button
+                      variant="success"
+                      type="submit"
+                      className="px-4 py-2"
+                    >
+                      <i className="bi bi-check-circle-fill me-2"></i>
+                      Guardar Nueva Contraseña
+                    </Button>
+                  </div>
+                </Form>
+              )}
             </Card.Body>
 
             <Card.Footer className="bg-light">
