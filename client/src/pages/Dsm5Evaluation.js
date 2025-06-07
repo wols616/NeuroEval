@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import "../styles/dsm5.css"; // Asegúrate de importar el CSS
+import Swal from "sweetalert2";
 
 export default function Dsm5Evaluation() {
   const { patientId } = useParams();
@@ -206,9 +207,14 @@ export default function Dsm5Evaluation() {
       console.log("Evaluación DSM-5 guardada correctamente");
 
       // SOLO cerrar el modal si todo fue exitoso
-      setTimeout(() => {
-        alert("Evaluación finalizada y enviada.");
-      }, 500); // Agregar un pequeño delay para evitar que se cierre antes de actualizar la UI
+     setTimeout(() => {
+  Swal.fire({
+    icon: 'success',
+    title: '¡Evaluación finalizada!',
+    text: 'Tus respuestas han sido enviadas correctamente.',
+    confirmButtonText: 'Aceptar'
+  });
+}, 500);
     } catch (error) {
       console.error("Error en finalizarEvaluacion:", error.message);
       alert(`Error: ${error.message}`);
@@ -296,3 +302,4 @@ export default function Dsm5Evaluation() {
     </div>
   );
 }
+
