@@ -67,7 +67,7 @@ const Navbar = () => {
                     state={{ from: "/dsm5" }}
                   >
                     {/* <FaChartLine className="me-1" /> */}
-                    <i class="bi bi-journal-text me-1"></i>
+                    <i className="bi bi-journal-text me-1"></i>
                     DSM-5
                   </Link>
                 </li>
@@ -77,7 +77,7 @@ const Navbar = () => {
                     to="/patient-selection"
                     state={{ from: "/adir" }}
                   >
-                    <i class="bi bi-chat-square-text me-1"></i>
+                    <i className="bi bi-chat-square-text me-1"></i>
                     ADI-R
                   </Link>
                 </li>
@@ -87,7 +87,7 @@ const Navbar = () => {
                     to="/patient-selection"
                     state={{ from: "/ados" }}
                   >
-                    <i class="bi bi-eye me-1"></i>
+                    <i className="bi bi-eye me-1"></i>
                     ADOS-2
                   </Link>
                 </li>

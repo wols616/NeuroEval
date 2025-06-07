@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import Swal from "sweetalert2";
 import "../styles/dsm5.css"; // Asegúrate de importar el CSS
 
 export default function Dsm5Evaluation() {
@@ -67,7 +68,7 @@ export default function Dsm5Evaluation() {
     }
   };
 
-  const validarRespuestas = () => {
+  const validarRespuestas = async () => {
     let esValido = true;
     for (const pregunta of preguntas) {
       if (!respuestas[pregunta.ID]) {
@@ -82,11 +83,17 @@ export default function Dsm5Evaluation() {
         top: 0,
         behavior: "smooth",
       });
+      await Swal.fire({
+        title: "¡Atención!",
+        text: "Debes completar todas las respuestas antes de continuar.",
+        icon: "warning",
+        confirmButtonText: "Entendido",
+      });
     }
     return esValido;
   };
 
-  const calcularTotal = () => {
+  const calcularTotal = async () => {
     if (!validarRespuestas()) {
       return;
     }
@@ -205,13 +212,25 @@ export default function Dsm5Evaluation() {
 
       console.log("Evaluación DSM-5 guardada correctamente");
 
-      // SOLO cerrar el modal si todo fue exitoso
-      setTimeout(() => {
-        alert("Evaluación finalizada y enviada.");
-      }, 500); // Agregar un pequeño delay para evitar que se cierre antes de actualizar la UI
+      // Mostrar SweetAlert de éxito
+      await Swal.fire({
+        title: "¡Éxito!",
+        text: "Evaluación finalizada y enviada correctamente.",
+        icon: "success",
+        confirmButtonText: "Aceptar",
+        timer: 3000,
+        timerProgressBar: true,
+      });
+      
     } catch (error) {
       console.error("Error en finalizarEvaluacion:", error.message);
-      alert(`Error: ${error.message}`);
+      // Mostrar SweetAlert de error
+      await Swal.fire({
+        title: "Error",
+        text: error.message,
+        icon: "error",
+        confirmButtonText: "Entendido",
+      });
     }
   };
 

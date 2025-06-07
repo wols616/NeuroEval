@@ -290,14 +290,17 @@ const Patients = () => {
       <div className="row">
         <div className="col-12">
           <div className="card shadow">
-            <div className="card-header bg-primary text-white">
+            <div
+              className="card-header text-white"
+              style={{ backgroundColor: "#3682D9" }}
+            >
               <h2 className="h4 mb-0">Gestión de Pacientes</h2>
             </div>
             <div className="card-body">
               <div className="mb-5">
-                <h3 className="h5 mb-3">Nuevo Paciente</h3>
+                <h2 className="mb-3 text-center">Nuevo Paciente</h2>
                 <Form>
-                  <div className="row">
+                  <div className="row text-center">
                     <div className="col-md-6 mb-3">
                       <Form.Label>Nombre</Form.Label>
                       <Form.Control
@@ -377,19 +380,21 @@ const Patients = () => {
                       />
                     </div>
                   </div>
-                  <Button
-                    variant="primary"
-                    onClick={handleAddPatient}
-                    className="mt-2"
-                  >
-                    Agregar Paciente
-                  </Button>
+                  <div className="d-flex justify-content-center">
+                    <Button
+                      variant="outline-primary"
+                      onClick={handleAddPatient}
+                      className="mt-2 w-50"
+                    >
+                      Agregar Paciente
+                    </Button>
+                  </div>
                 </Form>
               </div>
 
               <div className="mt-4">
-                <h3 className="h5 mb-3">Pacientes Registrados</h3>
-                <div className="search-box" style={{ width: "300px" }}>
+                <h3 className="text-center mb-3">Pacientes Registrados</h3>
+                <div className="search-box w-100" style={{}}>
                   <Form.Control
                     type="text"
                     placeholder="Buscar pacientes..."
@@ -397,7 +402,7 @@ const Patients = () => {
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
-                <div className="table-responsive">
+                <div className="table-responsive text-center">
                   <table className="table table-striped table-hover">
                     <thead className="thead-dark">
                       <tr>
