@@ -12,6 +12,9 @@ import {
 } from "react-icons/fa";
 import "../styles/navbar.css";
 
+// Importar Bootstrap JS (importante para el funcionamiento del toggler)
+import "bootstrap/dist/js/bootstrap.bundle.min";
+
 const Navbar = () => {
   const navigate = useNavigate();
   const { logout, user } = useAuth();
@@ -40,9 +43,9 @@ const Navbar = () => {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        <div className="navbarDiv collapse navbar-collapse" id="navbarContent">
+        <div className="collapse navbar-collapse" id="navbarContent">
           {/* Enlaces principales - izquierda */}
-          <ul className="navbar-nav me-auto">
+          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
             <li className="nav-item">
               <Link className="nav-link" to="/dashboard">
                 <FaHome className="me-1" />
@@ -63,7 +66,8 @@ const Navbar = () => {
                     to="/patient-selection"
                     state={{ from: "/dsm5" }}
                   >
-                    <FaChartLine className="me-1" />
+                    {/* <FaChartLine className="me-1" /> */}
+                    <i className="bi bi-journal-text me-1"></i>
                     DSM-5
                   </Link>
                 </li>
@@ -73,7 +77,7 @@ const Navbar = () => {
                     to="/patient-selection"
                     state={{ from: "/adir" }}
                   >
-                    <FaFileMedical className="me-1" />
+                    <i className="bi bi-chat-square-text me-1"></i>
                     ADI-R
                   </Link>
                 </li>
@@ -83,7 +87,7 @@ const Navbar = () => {
                     to="/patient-selection"
                     state={{ from: "/ados" }}
                   >
-                    <FaChartLine className="me-1" />
+                    <i className="bi bi-eye me-1"></i>
                     ADOS-2
                   </Link>
                 </li>
@@ -112,7 +116,7 @@ const Navbar = () => {
           </ul>
 
           {/* Perfil y logout - derecha */}
-          <div className="d-flex align-items-center ms-auto">
+          <div className="d-flex align-items-center ms-auto mb-2 mb-lg-0">
             <Link
               className="nav-link d-flex align-items-center me-3"
               to="/profile"

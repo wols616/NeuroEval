@@ -115,7 +115,7 @@ const PrivacyPolicy = () => {
                 <p className="mt-3">
                   Para ejercer estos derechos, contacta a nuestro Oficial de
                   Privacidad en:
-                  <a href="mailto:privacidad@tudominio.com" className="ms-2">
+                  <a href="mailto:privacidad@catolica.edu.sv" className="ms-2">
                     privacidad@tudominio.com
                   </a>
                 </p>
@@ -137,7 +137,7 @@ const PrivacyPolicy = () => {
               <strong>Contacto:</strong> Para preguntas sobre privacidad,
               contacta a nuestro equipo en
               <a href="mailto:soporte@tudominio.com" className="ms-2">
-                soporte@tudominio.com
+                soporte@catolica.edu.sv.com
               </a>
             </p>
           </section>

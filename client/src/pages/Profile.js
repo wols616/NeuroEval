@@ -322,7 +322,7 @@ const Profile = () => {
               </h2>
             </Card.Header>
 
-            <Card.Body>
+            <Card.Body className="">
               {error && (
                 <Alert variant="danger" className="mb-4">
                   {error}
@@ -413,7 +413,7 @@ const Profile = () => {
 
                 <div className="d-flex justify-content-between">
                   <Button
-                    variant="secondary"
+                    variant="btn btn-outline-secondary"
                     onClick={() => setShowPasswordForm(!showPasswordForm)}
                     className="px-4 py-2"
                   >
@@ -421,7 +421,11 @@ const Profile = () => {
                     {showPasswordForm ? "Cancelar" : "Cambiar Contraseña"}
                   </Button>
 
-                  <Button variant="primary" type="submit" className="px-4 py-2">
+                  <Button
+                    variant="outline-primary"
+                    type="submit"
+                    className="px-4 py-2"
+                  >
                     <i className="bi bi-save-fill me-2"></i>
                     Actualizar Perfil
                   </Button>
@@ -501,7 +505,7 @@ const Profile = () => {
 
                   <div className="d-flex justify-content-end">
                     <Button
-                      variant="success"
+                      variant="btn btn-outline-primary me-2"
                       type="submit"
                       className="px-4 py-2"
                     >

@@ -453,11 +453,7 @@ export default function AdirEvaluation() {
           <Card className="shadow">
             <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
               <h3 className="mb-0">Evaluación ADI-R</h3>
-              <Button
-                variant="outline-light"
-                size="sm"
-                onClick={salirEvaluacion}
-              >
+              <Button variant="danger" size="sm" onClick={salirEvaluacion}>
                 <i className="bi bi-x-lg me-1"></i> Salir
               </Button>
             </Card.Header>

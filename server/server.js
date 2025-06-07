@@ -17,6 +17,8 @@ const db = mysql.createConnection({
   database: "tea_db2",
 });
 
+const dbPromise = db.promise();
+
 db.connect((err) => {
   if (err) {
     console.error("Error connecting to database:", err);
@@ -1121,6 +1123,83 @@ app.post("/api/users/change-password", authenticateToken, async (req, res) => {
   } catch (error) {
     console.error("Error al cambiar contraseña:", error);
     res.status(500).json({ error: "Error al cambiar la contraseña" });
+  }
+});
+
+// Estadísticas generales por tipo de evaluación
+app.get("/api/evaluations/count-by-type", async (req, res) => {
+  try {
+    const query = `
+      SELECT TipoEvaluacion, COUNT(*) as count 
+      FROM evaluacion 
+      GROUP BY TipoEvaluacion
+    `;
+    const [results] = await dbPromise.query(query);
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener estadísticas" });
+  }
+});
+
+// Puntuaciones promedio por categoría en ADOS
+app.get("/api/ados/average-scores", async (req, res) => {
+  try {
+    const query = `
+      SELECT c.Categoria, AVG(a.Puntuacion) as average
+      FROM ados a
+      JOIN categoria c ON a.CategoriaID = c.ID
+      GROUP BY c.Categoria
+    `;
+    const [results] = await dbPromise.query(query);
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener estadísticas ADOS" });
+  }
+});
+
+// Distribución de puntuaciones en ADI-R
+app.get("/api/adir/score-distribution", async (req, res) => {
+  try {
+    const query = `
+      SELECT 
+        CASE 
+          WHEN Puntuacion <= 10 THEN '0-10'
+          WHEN Puntuacion <= 20 THEN '11-20'
+          WHEN Puntuacion <= 30 THEN '21-30'
+          ELSE '31+'
+        END as score_range,
+        COUNT(*) as count
+      FROM (
+        SELECT EvaluacionID, SUM(Puntuacion) as Puntuacion
+        FROM adir
+        GROUP BY EvaluacionID
+      ) as scores
+      GROUP BY score_range
+      ORDER BY score_range
+    `;
+    const [results] = await dbPromise.query(query);
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener distribución ADI-R" });
+  }
+});
+
+// Resultados de DSM-5
+app.get("/api/dsm5/results", async (req, res) => {
+  try {
+    const query = `
+      SELECT Apto, COUNT(*) as count
+      FROM dsm5
+      GROUP BY Apto
+    `;
+    const [results] = await dbPromise.query(query);
+    res.json(results);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Error al obtener resultados DSM-5" });
   }
 });
 
