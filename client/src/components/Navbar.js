@@ -61,6 +61,16 @@ const Navbar = () => {
                   <Link
                     className="nav-link"
                     to="/patient-selection"
+                    state={{ from: "/dsm5" }}
+                  >
+                    <FaChartLine className="me-1" />
+                    DSM-5
+                  </Link>
+                </li>
+                <li className="nav-item">
+                  <Link
+                    className="nav-link"
+                    to="/patient-selection"
                     state={{ from: "/adir" }}
                   >
                     <FaFileMedical className="me-1" />
@@ -75,16 +85,6 @@ const Navbar = () => {
                   >
                     <FaChartLine className="me-1" />
                     ADOS-2
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <Link
-                    className="nav-link"
-                    to="/patient-selection"
-                    state={{ from: "/dsm5" }}
-                  >
-                    <FaChartLine className="me-1" />
-                    DSM-5
                   </Link>
                 </li>
               </>

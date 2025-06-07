@@ -1,6 +1,19 @@
 import React, { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import Swal from "sweetalert2";
+import {
+  Container,
+  Card,
+  Button,
+  Form,
+  ProgressBar,
+  Spinner,
+  Badge,
+  Alert,
+  Row,
+  Col,
+} from "react-bootstrap";
 
 const puntuaciones = [
   {
@@ -10,21 +23,22 @@ const puntuaciones = [
   { value: 1, label: "1 - Presencia leve o dudosa del comportamiento" },
   { value: 2, label: "2 - Presencia clara y anormal del comportamiento" },
   {
-    value: 3,
+    value: 2,
     label: "3 - Comportamiento extremadamente anormal (raramente se usa)",
   },
   {
-    value: 7,
+    value: 0,
     label: "7 - Comportamiento anormal pero no específico del autismo",
   },
-  { value: 8, label: "8 - Información no disponible o inaplicable" },
-  { value: 9, label: "9 - No sabe / no recuerda" },
+  { value: 0, label: "8 - Información no disponible o inaplicable" },
+  { value: 0, label: "9 - No sabe / no recuerda" },
 ];
 
 export default function AdirEvaluation() {
   const { patientId } = useParams();
   const pacienteID = parseInt(patientId);
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const [evaluacionID, setEvaluacionID] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -40,10 +54,22 @@ export default function AdirEvaluation() {
     setError(null);
 
     try {
+      // Mostrar loader mientras se crea la evaluación
+      Swal.fire({
+        title: "Iniciando evaluación...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       // Crear evaluación
       const crearRes = await fetch("http://localhost:5000/api/evaluaciones", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
         body: JSON.stringify({
           PacienteID: pacienteID,
           EspecialistaID: user.id,
@@ -62,7 +88,12 @@ export default function AdirEvaluation() {
 
       // Cargar preguntas
       const preguntasRes = await fetch(
-        "http://localhost:5000/api/preguntas-con-respuestas"
+        "http://localhost:5000/api/preguntas-con-respuestas",
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
       );
       if (!preguntasRes.ok) {
         throw new Error("Error al cargar las preguntas");
@@ -75,30 +106,82 @@ export default function AdirEvaluation() {
       }));
 
       setPreguntas(normalizadas);
+
+      Swal.close();
       setLoading(false);
     } catch (err) {
       console.error(err);
       setError(err.message);
       setLoading(false);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message,
+        confirmButtonColor: "#3085d6",
+      });
+    }
+  };
+
+  const eliminarRespuestas = async (preguntaId) => {
+    try {
+      const respuesta = await fetch(
+        `http://localhost:5000/api/adir/${evaluacionID}/${preguntaId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!respuesta.ok) {
+        throw new Error("Error al eliminar respuestas");
+      }
+    } catch (err) {
+      console.error("Error al eliminar respuestas:", err);
+      throw err;
     }
   };
 
   const salirEvaluacion = async () => {
-    const res = await fetch(
-      `http://localhost:5000/api/evaluaciones/${evaluacionID}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+    const result = await Swal.fire({
+      title: "¿Está seguro?",
+      text: "¿Desea salir de la evaluación sin guardar los cambios?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, salir",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/evaluaciones/${evaluacionID}`,
+          {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        if (!res.ok) {
+          const errorData = await res.json();
+          throw new Error(errorData.error || "Error al eliminar evaluación");
+        }
+        navigate("/dashboard");
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: error.message,
+          confirmButtonColor: "#3085d6",
+        });
       }
-    );
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(errorData.error || "Error al eliminar evaluación");
     }
-    window.location.href = "/dashboard";
   };
 
   const manejarCambio = (respuestaID, valor) => {
@@ -118,7 +201,10 @@ export default function AdirEvaluation() {
         if (puntuacion !== undefined) {
           return fetch("http://localhost:5000/api/adir", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
             body: JSON.stringify({
               EvaluacionID: evaluacionID,
               RespuestaID: respuesta.ID,
@@ -138,6 +224,22 @@ export default function AdirEvaluation() {
 
   const siguientePregunta = async () => {
     try {
+      // Verificar que todas las respuestas estén completas
+      const preguntaActual = preguntas[indice];
+      const todasRespondidas = preguntaActual.Respuestas.every(
+        (respuesta) => respuestasSeleccionadas[respuesta.ID] !== undefined
+      );
+
+      if (!todasRespondidas) {
+        Swal.fire({
+          icon: "warning",
+          title: "Respuestas incompletas",
+          text: "Por favor responda todas las preguntas antes de continuar",
+          confirmButtonColor: "#3085d6",
+        });
+        return;
+      }
+
       await guardarPuntuaciones();
 
       if (indice < preguntas.length - 1) {
@@ -145,20 +247,68 @@ export default function AdirEvaluation() {
         setRespuestasSeleccionadas({});
       } else {
         setEvaluacionCompletada(true);
+        Swal.fire({
+          position: "center",
+          icon: "success",
+          title: "Evaluación completada",
+          text: "Ahora puede ingresar el diagnóstico final",
+          showConfirmButton: false,
+          timer: 1500,
+        });
       }
     } catch (err) {
       console.error("Error al avanzar:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ocurrió un error al guardar las respuestas",
+        confirmButtonColor: "#3085d6",
+      });
     }
   };
 
-  const preguntaAnterior = () => {
+  const preguntaAnterior = async () => {
     if (indice > 0) {
-      setIndice((prev) => prev - 1);
+      try {
+        // Eliminar respuestas de la pregunta actual antes de retroceder
+        const preguntaActualId = preguntas[indice - 1].ID;
+        await eliminarRespuestas(preguntaActualId);
+
+        // Retroceder
+        setIndice((prev) => prev - 1);
+        setRespuestasSeleccionadas({});
+      } catch (err) {
+        console.error("Error al retroceder:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo retroceder a la pregunta anterior",
+          confirmButtonColor: "#3085d6",
+        });
+      }
     }
   };
 
   const guardarDiagnostico = async () => {
+    if (!diagnostico.trim()) {
+      Swal.fire({
+        icon: "warning",
+        title: "Diagnóstico vacío",
+        text: "Por favor ingrese un diagnóstico antes de guardar",
+        confirmButtonColor: "#3085d6",
+      });
+      return;
+    }
+
     try {
+      Swal.fire({
+        title: "Guardando diagnóstico...",
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const response = await fetch(`http://localhost:5000/api/reportes`, {
         method: "POST",
         headers: {
@@ -176,141 +326,224 @@ export default function AdirEvaluation() {
         throw new Error("Error al guardar el diagnóstico");
       }
 
-      // Redirigir o mostrar mensaje de éxito
-      alert("Evaluación completada y guardada exitosamente!");
+      Swal.fire({
+        icon: "success",
+        title: "Éxito",
+        text: "Diagnóstico guardado correctamente",
+        confirmButtonColor: "#3085d6",
+      }).then(() => {
+        navigate(`/evaluaciones/adir/${evaluacionID}`);
+      });
     } catch (err) {
       console.error("Error al guardar diagnóstico:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: err.message,
+        confirmButtonColor: "#3085d6",
+      });
     }
   };
 
   if (!evaluacionID) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-4">ADI-R Evaluation</h2>
-        <p className="text-black mb-6">
-          Para comenzar la evaluación ADI-R para este paciente, haga clic en el
-          botón "Iniciar Evaluación".
-        </p>
-        <button
-          onClick={iniciarEvaluacion}
-          className="px-6 py-3 btn btn-primary"
-        >
-          Iniciar Evaluación
-        </button>
-      </div>
+      <Container className="py-5">
+        <Row className="justify-content-center">
+          <Col md={8} lg={6}>
+            <Card className="shadow text-center">
+              <Card.Body>
+                <Card.Title as="h2" className="mb-4 text-primary">
+                  Evaluación ADI-R
+                </Card.Title>
+                <Card.Text className="mb-4">
+                  Para comenzar la evaluación ADI-R para este paciente, haga
+                  clic en el botón "Iniciar Evaluación".
+                </Card.Text>
+                <Button onClick={iniciarEvaluacion} variant="primary" size="lg">
+                  Iniciar Evaluación
+                </Button>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     );
   }
 
   if (loading) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-4">ADI-R Evaluation</h2>
-        <div className="flex justify-center items-center">
-          <div className="spinner-border text-primary" role="status">
-            <span className="visually-hidden">Loading...</span>
-          </div>
-        </div>
-      </div>
+      <Container className="d-flex justify-content-center align-items-center min-vh-100">
+        <Spinner animation="border" variant="primary" />
+      </Container>
     );
   }
 
   if (error) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-4">Error</h2>
-        <p className="text-red-600 mb-4">{error}</p>
-        <button
-          onClick={iniciarEvaluacion}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Reintentar
-        </button>
-      </div>
+      <Container className="py-5">
+        <Row className="justify-content-center">
+          <Col md={8} lg={6}>
+            <Card className="shadow">
+              <Card.Body>
+                <Card.Title as="h2" className="text-danger mb-4">
+                  Error
+                </Card.Title>
+                <Alert variant="danger">{error}</Alert>
+                <Button
+                  onClick={iniciarEvaluacion}
+                  variant="primary"
+                  className="mt-3"
+                >
+                  Reintentar
+                </Button>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     );
   }
 
   if (evaluacionCompletada) {
     return (
-      <div className="max-w-3xl mx-auto p-6">
-        <h2 className="text-2xl font-bold mb-4">Diagnóstico Final</h2>
-        <textarea
-          className="w-full p-2 border rounded mb-4"
-          rows="6"
-          value={diagnostico}
-          onChange={(e) => setDiagnostico(e.target.value)}
-          placeholder="Escriba aquí el diagnóstico..."
-        />
-        <button
-          onClick={guardarDiagnostico}
-          className="px-4 py-2 btn btn-primary"
-        >
-          Guardar Diagnóstico
-        </button>
-      </div>
+      <Container className="py-5">
+        <Row className="justify-content-center">
+          <Col md={8} lg={6}>
+            <Card className="shadow">
+              <Card.Header className="bg-primary text-white">
+                <h3 className="mb-0">Diagnóstico Final</h3>
+              </Card.Header>
+              <Card.Body>
+                <Form.Group className="mb-4">
+                  <Form.Label>Ingrese el diagnóstico:</Form.Label>
+                  <Form.Control
+                    as="textarea"
+                    rows={6}
+                    value={diagnostico}
+                    onChange={(e) => setDiagnostico(e.target.value)}
+                    placeholder="Escriba aquí el diagnóstico..."
+                  />
+                </Form.Group>
+                <div className="d-flex justify-content-between">
+                  <Button
+                    variant="outline-secondary"
+                    onClick={() => setEvaluacionCompletada(false)}
+                  >
+                    Volver a las preguntas
+                  </Button>
+                  <Button variant="success" onClick={guardarDiagnostico}>
+                    Guardar Diagnóstico
+                  </Button>
+                </div>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     );
   }
 
   const preguntaActual = preguntas[indice];
+  const progreso = ((indice + 1) / preguntas.length) * 100;
 
   return (
-    <div className="max-w-3xl mx-auto p-6">
-      <h2 className="text-2xl font-bold mb-4">Evaluación ADI-R</h2>
-      <div className="mb-4">
-        <button
-          onClick={salirEvaluacion}
-          className="px-4 py-2 bg-red-500 rounded hover:bg-red-600 btn btn-outline-danger"
-          style={{ color: "red" }}
-        >
-          Salir
-        </button>
-        <span className="text-sm text-gray-500">
-          Pregunta {indice + 1} de {preguntas.length}
-        </span>
-        <h3 className="text-xl font-semibold">{preguntaActual.Categoria}</h3>
-        <p className="text-lg mb-4">{preguntaActual.Pregunta}</p>
-      </div>
+    <Container className="py-4">
+      <Row className="justify-content-center">
+        <Col xl={10}>
+          <Card className="shadow">
+            <Card.Header className="bg-primary text-white d-flex justify-content-between align-items-center">
+              <h3 className="mb-0">Evaluación ADI-R</h3>
+              <Button
+                variant="outline-light"
+                size="sm"
+                onClick={salirEvaluacion}
+              >
+                <i className="bi bi-x-lg me-1"></i> Salir
+              </Button>
+            </Card.Header>
 
-      <div className="space-y-4 mb-6">
-        {preguntaActual.Respuestas.map((respuesta) => (
-          <div key={respuesta.ID} className="border-b pb-4">
-            <p className="font-medium mb-2">{respuesta.Respuesta}</p>
-            <select
-              className="w-full p-2 border rounded"
-              value={respuestasSeleccionadas[respuesta.ID] || ""}
-              onChange={(e) =>
-                manejarCambio(respuesta.ID, parseInt(e.target.value))
-              }
-            >
-              <option value="">Seleccione una puntuación</option>
-              {puntuaciones.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        ))}
-      </div>
+            <Card.Body>
+              {/* Barra de progreso */}
+              <div className="mb-4">
+                <div className="d-flex justify-content-between mb-2">
+                  <span>Progreso:</span>
+                  <span>
+                    Pregunta {indice + 1} de {preguntas.length}
+                  </span>
+                </div>
+                <ProgressBar
+                  now={progreso}
+                  label={`${Math.round(progreso)}%`}
+                />
+              </div>
 
-      <div className="flex justify-between">
-        <button
-          onClick={preguntaAnterior}
-          disabled={indice === 0}
-          className={`px-4 py-2 ${
-            indice === 0
-              ? "bg-gray-300 cursor-not-allowed"
-              : "btn btn-outline-secondary"
-          }`}
-        >
-          Anterior
-        </button>
-        <button
-          onClick={siguientePregunta}
-          className="px-4 py-2 btn btn-outline-primary"
-        >
-          {indice === preguntas.length - 1 ? "Finalizar" : "Siguiente"}
-        </button>
-      </div>
-    </div>
+              {/* Pregunta actual */}
+              <Card className="mb-4">
+                <Card.Header className="bg-light">
+                  <h4 className="mb-0">{preguntaActual.Categoria}</h4>
+                </Card.Header>
+                <Card.Body>
+                  <h5 className="mb-4">{preguntaActual.Pregunta}</h5>
+
+                  {/* Respuestas */}
+                  <div className="space-y-4">
+                    {preguntaActual.Respuestas.map((respuesta) => (
+                      <div
+                        key={respuesta.ID}
+                        className="mb-4 pb-3 border-bottom"
+                      >
+                        <Form.Group>
+                          <Form.Label className="fw-bold">
+                            {respuesta.Respuesta}
+                          </Form.Label>
+                          <Form.Select
+                            className="mt-2"
+                            value={respuestasSeleccionadas[respuesta.ID] ?? ""}
+                            onChange={(e) =>
+                              manejarCambio(
+                                respuesta.ID,
+                                parseInt(e.target.value)
+                              )
+                            }
+                            required
+                          >
+                            <option value="">Seleccione una puntuación</option>
+                            {puntuaciones.map((p) => (
+                              <option key={p.value} value={p.value}>
+                                {p.label}
+                              </option>
+                            ))}
+                          </Form.Select>
+                        </Form.Group>
+                      </div>
+                    ))}
+                  </div>
+                </Card.Body>
+              </Card>
+
+              {/* Navegación */}
+              <div className="d-flex justify-content-between">
+                <Button
+                  variant="outline-secondary"
+                  onClick={preguntaAnterior}
+                  disabled={indice === 0}
+                >
+                  <i className="bi bi-arrow-left me-2"></i> Anterior
+                </Button>
+                <Button variant="primary" onClick={siguientePregunta}>
+                  {indice === preguntas.length - 1 ? (
+                    "Finalizar Evaluación"
+                  ) : (
+                    <>
+                      Siguiente <i className="bi bi-arrow-right ms-2"></i>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </Card.Body>
+          </Card>
+        </Col>
+      </Row>
+    </Container>
   );
 }

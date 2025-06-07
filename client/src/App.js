@@ -17,18 +17,30 @@ import PatientReports from "./pages/PatientReports";
 import Profile from "./pages/Profile";
 import Users from "./pages/Users";
 import ProtectedRoute from "./components/ProtectedRoute.js";
+import RoleProtectedRoute from "./components/RoleProtectedRoute.js";
 import Layout from "./components/Layout";
 import PatientSelection from "./pages/PatientSelection";
+import AdosModuleSelection from "./components/AdosModuleSelection.js";
+import AdosEvaluationView from "./pages/AdosEvaluationView.js";
+import ResultadosADIR from "./pages/ResultadosADIR.js";
+import PrivacyPolicy from "./pages/PrivacyPolicy.js";
+
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
+import Swal from "sweetalert2";
+
 function PrivateRoute({ children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+
+  if (loading) return null;
+
   return user ? children : <Navigate to="/login" />;
 }
 
 function PublicRoute({ children }) {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
+  if (loading) return null;
   return !user ? children : <Navigate to="/dashboard" />;
 }
 
@@ -82,19 +94,63 @@ function App() {
             path="/adir/:patientId"
             element={
               <PrivateRoute>
-                <Layout>
-                  <AdirEvaluation />
-                </Layout>
+                <RoleProtectedRoute allowedRoles={["Especialista"]}>
+                  <Layout>
+                    <AdirEvaluation />
+                  </Layout>
+                </RoleProtectedRoute>
               </PrivateRoute>
             }
           />
+
+          <Route
+            path="/evaluaciones/adir/:evaluacionID"
+            element={
+              <PrivateRoute>
+                <RoleProtectedRoute allowedRoles={["Especialista"]}>
+                  <Layout>
+                    <ResultadosADIR />
+                  </Layout>
+                </RoleProtectedRoute>
+              </PrivateRoute>
+            }
+          />
+
           <Route
             path="/ados/:patientId"
             element={
               <PrivateRoute>
-                <Layout>
-                  <AdosEvaluation />
-                </Layout>
+                <RoleProtectedRoute allowedRoles={["Especialista"]}>
+                  <Layout>
+                    <AdosModuleSelection />
+                  </Layout>
+                </RoleProtectedRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/ados-evaluation/:patientId"
+            element={
+              <PrivateRoute>
+                <RoleProtectedRoute allowedRoles={["Especialista"]}>
+                  <Layout>
+                    <AdosEvaluation />
+                  </Layout>
+                </RoleProtectedRoute>
+              </PrivateRoute>
+            }
+          />
+
+          <Route
+            path="/evaluaciones/ados/:evaluacionID"
+            element={
+              <PrivateRoute>
+                <RoleProtectedRoute allowedRoles={["Especialista"]}>
+                  <Layout>
+                    <AdosEvaluationView />
+                  </Layout>
+                </RoleProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -103,9 +159,11 @@ function App() {
             path="/dsm5/:patientId"
             element={
               <PrivateRoute>
-                <Layout>
-                  <Dsm5Evaluation />
-                </Layout>
+                <RoleProtectedRoute allowedRoles={["Especialista"]}>
+                  <Layout>
+                    <Dsm5Evaluation />
+                  </Layout>
+                </RoleProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -114,9 +172,11 @@ function App() {
             path="/patient-selection"
             element={
               <PrivateRoute>
-                <Layout>
-                  <PatientSelection />
-                </Layout>
+                <RoleProtectedRoute allowedRoles={["Especialista"]}>
+                  <Layout>
+                    <PatientSelection />
+                  </Layout>
+                </RoleProtectedRoute>
               </PrivateRoute>
             }
           />
@@ -154,10 +214,21 @@ function App() {
             path="/users"
             element={
               <ProtectedRoute>
-                <Layout>
-                  <Users />
-                </Layout>
+                <RoleProtectedRoute allowedRoles={["Administrador"]}>
+                  <Layout>
+                    <Users />
+                  </Layout>
+                </RoleProtectedRoute>
               </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/privacy-policy"
+            element={
+              <Layout>
+                <PrivacyPolicy />
+              </Layout>
             }
           />
         </Routes>

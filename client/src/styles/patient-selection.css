@@ -49,3 +49,15 @@
 .select-patient-btn:hover {
   transform: scale(1.05);
 }
+
+/* Agrega estas reglas al final de tu archivo CSS */
+
+.patient-list.blurred {
+  filter: blur(5px);
+  pointer-events: none;
+  transition: filter 0.3s ease;
+}
+
+.patient-card.hidden {
+  display: none;
+}

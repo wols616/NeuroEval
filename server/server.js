@@ -160,7 +160,6 @@ app.get("/api/patients", authenticateToken, (req, res) => {
   });
 });
 
-
 /*
 app.post("/api/patients", authenticateToken, (req, res) => {
   const { nombre, apellido, fechaNacimiento, direccion, telefono, email } =
@@ -180,7 +179,8 @@ app.post("/api/patients", authenticateToken, (req, res) => {
 */
 
 app.post("/api/patients", authenticateToken, (req, res) => {
-  const { nombre, apellido, fechaNacimiento, direccion, telefono, email } = req.body;
+  const { nombre, apellido, fechaNacimiento, direccion, telefono, email } =
+    req.body;
 
   // Verificar si algún campo está vacío
   if (
@@ -191,7 +191,9 @@ app.post("/api/patients", authenticateToken, (req, res) => {
     !telefono?.trim() ||
     !email?.trim()
   ) {
-    return res.status(400).json({ error: "Todos los campos son obligatorios y no pueden estar vacíos." });
+    return res.status(400).json({
+      error: "Todos los campos son obligatorios y no pueden estar vacíos.",
+    });
   }
 
   const query = `
@@ -203,38 +205,12 @@ app.post("/api/patients", authenticateToken, (req, res) => {
     query,
     [nombre, apellido, fechaNacimiento, direccion, telefono, email],
     (err, results) => {
-      if (err) return res.status(500).json({ error: "Error en la base de datos." });
+      if (err)
+        return res.status(500).json({ error: "Error en la base de datos." });
       res.json({ id: results.insertId });
     }
   );
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 app.get("/api/patients/:id", authenticateToken, (req, res) => {
   const query = "SELECT * FROM Paciente WHERE ID = ?";
@@ -374,6 +350,8 @@ app.delete("/api/evaluaciones/:id", authenticateToken, (req, res) => {
   });
 });
 
+//Método para
+
 //método para obtener las respuestas de una pregunta por su ID
 app.get("/api/respuestas/:id", authenticateToken, (req, res) => {
   const query = "SELECT * FROM Respuesta WHERE PreguntaID = ?";
@@ -502,29 +480,163 @@ app.post("/api/adir", async (req, res) => {
   }
 });
 
+// Eliminar respuestas ADIR para una evaluación y pregunta específica
+app.delete("/api/adir/:evaluacionID/:preguntaID", async (req, res) => {
+  try {
+    const { evaluacionID, preguntaID } = req.params;
+
+    const query = `
+      DELETE FROM Adir 
+      WHERE EvaluacionID = ? 
+      AND RespuestaID IN (
+        SELECT ID FROM Respuesta WHERE PreguntaID = ?
+      )
+    `;
+
+    db.query(query, [evaluacionID, preguntaID], (err, results) => {
+      if (err) {
+        console.error("Error al eliminar respuestas ADI-R:", err);
+        return res.status(500).json({ error: "Error al eliminar respuestas" });
+      }
+
+      res.json({ success: true, affectedRows: results.affectedRows });
+    });
+  } catch (error) {
+    console.error("Error en DELETE /api/adir:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
+// Endpoint para obtener resultados ADIR organizados por categoría
+app.get("/api/adir/resultados/:evaluacionID", async (req, res) => {
+  try {
+    const { evaluacionID } = req.params;
+
+    // 1. Obtener todas las respuestas con sus puntuaciones para esta evaluación
+    const respuestasQuery = `
+      SELECT 
+        p.ID AS PreguntaID,
+        p.Pregunta,
+        p.Categoria,
+        r.ID AS RespuestaID,
+        r.Respuesta,
+        a.Puntuacion
+      FROM Adir a
+      JOIN Respuesta r ON a.RespuestaID = r.ID
+      JOIN Pregunta p ON r.PreguntaID = p.ID
+      WHERE a.EvaluacionID = ?
+      ORDER BY p.Categoria, p.ID, r.ID
+    `;
+
+    const respuestas = await new Promise((resolve, reject) => {
+      db.query(respuestasQuery, [evaluacionID], (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    });
+
+    if (!respuestas || respuestas.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No se encontraron respuestas para esta evaluación" });
+    }
+
+    // 2. Organizar los datos por categoría
+    const resultados = {
+      categorias: {},
+      //totalGeneral: 0,
+    };
+
+    // Definir los títulos de las categorías
+    const titulosCategorias = {
+      A1: "A. Alteraciones Cualitativas de la Intención Social Reciproca",
+      A2: "A. Alteraciones Cualitativas de la Intención Social Reciproca",
+      A3: "A. Alteraciones Cualitativas de la Intención Social Reciproca",
+      B1: "B. Alteraciones Cualitativas de la Comunicación",
+      B2: "B. Alteraciones Cualitativas de la Comunicación",
+      B3: "B. Alteraciones Cualitativas de la Comunicación",
+      B4: "B. Alteraciones Cualitativas de la Comunicación",
+      C1: "C. PATRONES DE CONDUCTA RESTRINGIDOS, REPETITIVOS Y ESTEREOTIPADOS",
+      C2: "C. PATRONES DE CONDUCTA RESTRINGIDOS, REPETITIVOS Y ESTEREOTIPADOS",
+      C3: "C. PATRONES DE CONDUCTA RESTRINGIDOS, REPETITIVOS Y ESTEREOTIPADOS",
+      C4: "C. PATRONES DE CONDUCTA RESTRINGIDOS, REPETITIVOS Y ESTEREOTIPADOS",
+      D1: "D. Conductas anormales antes de los 36 meses de edad",
+    };
+
+    // Procesar cada respuesta
+    respuestas.forEach((item) => {
+      const categoriaBase = item.Categoria.substring(0, 1); // A, B, C o D
+      const tituloCategoria = titulosCategorias[item.Categoria];
+
+      if (!resultados.categorias[categoriaBase]) {
+        resultados.categorias[categoriaBase] = {
+          titulo: tituloCategoria,
+          items: {},
+          total: 0,
+        };
+      }
+
+      // Para categoría D (especial)
+      if (categoriaBase === "D") {
+        if (!resultados.categorias[categoriaBase].items[item.Categoria]) {
+          resultados.categorias[categoriaBase].items[item.Categoria] = {
+            pregunta: item.Pregunta,
+            respuestas: [],
+          };
+        }
+        resultados.categorias[categoriaBase].items[
+          item.Categoria
+        ].respuestas.push({
+          respuesta: item.Respuesta,
+          puntuacion: item.Puntuacion,
+        });
+        resultados.categorias[categoriaBase].total += item.Puntuacion;
+      }
+      // Para otras categorías (A, B, C)
+      else {
+        if (!resultados.categorias[categoriaBase].items[item.Categoria]) {
+          resultados.categorias[categoriaBase].items[item.Categoria] = {
+            pregunta: item.Pregunta,
+            puntuacion: item.Puntuacion,
+          };
+          resultados.categorias[categoriaBase].total += item.Puntuacion;
+          //resultados.totalGeneral += item.Puntuacion;
+        }
+      }
+    });
+
+    res.json(resultados);
+  } catch (error) {
+    console.error("Error en /api/adir/resultados:", error);
+    res
+      .status(500)
+      .json({ error: "Error interno del servidor", details: error.message });
+  }
+});
+
 app.post("/api/ados", (req, res) => {
   try {
     const {
       EvaluacionID,
-      Actividad,
+      ActividadID,
       Observacion,
       Puntuacion,
       Modulo,
       CategoriaID,
     } = req.body;
 
-    if (!EvaluacionID) {
+    if (!EvaluacionID || !ActividadID) {
       return res.status(400).json({ error: "Falta EvaluacionID" });
     }
 
     const query = `
-        INSERT INTO Ados (EvaluacionID, Actividad, Observacion, Puntuacion, Modulo, CategoriaID) 
+        INSERT INTO Ados (EvaluacionID, ActividadID, Observacion, Puntuacion, Modulo, CategoriaID) 
         VALUES (?, ?, ?, ?, ?, ?)
       `;
 
     db.query(
       query,
-      [EvaluacionID, Actividad, Observacion, Puntuacion, Modulo, CategoriaID],
+      [EvaluacionID, ActividadID, Observacion, Puntuacion, Modulo, CategoriaID],
       (err, results) => {
         if (err) {
           console.error("Error al guardar puntuación ADOS:", err);
@@ -538,6 +650,99 @@ app.post("/api/ados", (req, res) => {
     console.error("Error en /api/ados:", error);
     res.status(500).json({ error: "Error interno del servidor" });
   }
+});
+
+// Obtener todas las actividades predefinidas
+app.get("/api/activities", (req, res) => {
+  const { module } = req.query;
+
+  let query = `
+    SELECT id, Actividad, Descripcion, NombreModulo 
+    FROM Actividadados
+  `;
+
+  const params = [];
+
+  if (module) {
+    query += " WHERE NombreModulo = ?";
+    params.push(module);
+  }
+
+  query += " ORDER BY id";
+
+  db.query(query, params, (err, results) => {
+    if (err) {
+      console.error("Error al obtener actividades:", err);
+      return res.status(500).json({ error: "Error al obtener actividades" });
+    }
+    res.json(results);
+  });
+});
+
+// Obtener todas las actividades y puntuaciones de una evaluación ADOS-2
+app.get("/api/ados/evaluacion/:evaluacionID", (req, res) => {
+  const { evaluacionID } = req.params;
+
+  const query = `
+    SELECT 
+      a.ID AS ActividadID,
+      a.Actividad AS NombreActividad,
+      a.Descripcion,
+      a.NombreModulo AS Modulo,
+      ad.Puntuacion,
+      ad.Observacion,
+      c.Categoria
+    FROM Actividadados a
+    LEFT JOIN Ados ad ON a.ID = ad.ActividadID AND ad.EvaluacionID = ?
+    LEFT JOIN Categoria c ON ad.CategoriaID = c.ID
+    WHERE ad.Puntuacion IS NOT NULL AND ad.Observacion IS NOT NULL
+    ORDER BY a.ID;
+  `;
+
+  db.query(query, [evaluacionID], (err, results) => {
+    if (err) {
+      console.error("Error al obtener actividades ADOS:", err);
+      return res.status(500).json({ error: "Error al obtener actividades" });
+    }
+
+    // Organizar por módulo y categoría
+    const organizedData = {
+      modulos: {},
+      totales: {},
+    };
+
+    results.forEach((item) => {
+      const modulo = item.Modulo || "Sin módulo";
+      const categoria = item.Categoria || "Sin categoría";
+
+      if (!organizedData.modulos[modulo]) {
+        organizedData.modulos[modulo] = { categorias: {} };
+      }
+
+      if (!organizedData.modulos[modulo].categorias[categoria]) {
+        organizedData.modulos[modulo].categorias[categoria] = {
+          actividades: [],
+        };
+      }
+
+      organizedData.modulos[modulo].categorias[categoria].actividades.push({
+        id: item.ActividadID,
+        nombre: item.NombreActividad,
+        descripcion: item.Descripcion,
+        puntuacion: item.Puntuacion || 0,
+        observacion: item.Observacion || "",
+      });
+
+      // Totales por categoría
+      if (!organizedData.totales[categoria]) {
+        organizedData.totales[categoria] = 0;
+      }
+
+      organizedData.totales[categoria] += item.Puntuacion || 0;
+    });
+
+    res.json(organizedData);
+  });
 });
 
 app.post("/api/reportes", (req, res) => {
@@ -613,6 +818,17 @@ app.get("/api/reportes", authenticateToken, (req, res) => {
         ORDER BY r.FechaGeneracion DESC
     `;
   db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    res.json(results);
+  });
+});
+
+app.get("/api/reporte-by-evaluacionID/:evaluacionID", (req, res) => {
+  const { evaluacionID } = req.params;
+  const query = `
+        SELECT * FROM Reporte WHERE EvaluacionID = ? LIMIT 1
+    `;
+  db.query(query, [evaluacionID], (err, results) => {
     if (err) return res.status(500).json({ error: "Database error" });
     res.json(results);
   });

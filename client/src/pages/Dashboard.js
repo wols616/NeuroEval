@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
+import "../styles/dashboard.css";
+import dashboardImage from "../images/imgDashboard.png";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -52,7 +54,7 @@ const Dashboard = () => {
 
   if (loading) {
     return (
-      <div className="p-5">
+      <div className="cont p-5">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <div className="flex items-center space-x-4">
@@ -68,19 +70,15 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="p-5">
+    <div className="d-flex flex-column align-items-center p-1">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
         <div className="flex items-center space-x-4">
           <h1 className="text-lg font-semibold text-gray-900">
-            Bienvenido {userData?.Nombre || "Usuario"}
+            Bienvenido/a {userData?.Nombre || "Usuario"} {userData?.Apellido}
           </h1>
         </div>
-        <p className="text-gray-600">
-          lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam,
-          quod.
-        </p>
       </div>
+      <img src={dashboardImage} alt="Logo" className="logo" />
     </div>
   );
 };

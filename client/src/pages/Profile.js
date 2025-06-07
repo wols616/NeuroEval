@@ -1,40 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "../contexts/AuthContext";
 
 const Profile = () => {
   const { user } = useAuth();
   const [profile, setProfile] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [initialProfile, setInitialProfile] = useState(null);
 
   useEffect(() => {
-    fetchProfile(); 
+    fetchProfile();
   }, []);
 
   const fetchProfile = async () => {
     try {
-      const response = await fetch(`http://localhost:5000/api/${user.role.toLowerCase()}/${user.id}`, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+      const response = await fetch(
+        `http://localhost:5000/api/${user.role.toLowerCase()}/${user.id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
         }
-      });
-      
+      );
+
       if (!response.ok) {
-        throw new Error('Error al cargar el perfil');
+        throw new Error("Error al cargar el perfil");
       }
 
       const data = await response.json();
-      
+
       if (!data) {
-        throw new Error('Perfil no encontrado');
+        throw new Error("Perfil no encontrado");
       }
 
       setProfile(data);
       setInitialProfile(data);
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      setError(error.message || 'Error al cargar el perfil');
+      console.error("Error fetching profile:", error);
+      setError(error.message || "Error al cargar el perfil");
     } finally {
       setLoading(false);
     }
@@ -47,45 +50,52 @@ const Profile = () => {
       const data = {
         nombre: profile.Nombre,
         apellido: profile.Apellido,
-        email: profile.Email
+        email: profile.Email,
       };
 
       // Verificar si hay cambios
-      const hasChanges = 
+      const hasChanges =
         profile.Nombre !== initialProfile.Nombre ||
         profile.Apellido !== initialProfile.Apellido ||
         profile.Email !== initialProfile.Email;
 
       if (!hasChanges) {
-        setError('No se han realizado cambios');
+        setError("No se han realizado cambios");
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/${user.role.toLowerCase()}/${user.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(data)
-      });
+      const response = await fetch(
+        `http://localhost:5000/api/${user.role.toLowerCase()}/${user.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: JSON.stringify(data),
+        }
+      );
 
       const responseData = await response.json();
-      console.log('Respuesta del servidor:', responseData); // Log para depuración
+      console.log("Respuesta del servidor:", responseData); // Log para depuración
 
       if (response.ok) {
-        setError('');
+        setError("");
         // Actualizar el estado local con los datos devueltos por el servidor
         setProfile(responseData.data);
         setInitialProfile(responseData.data);
         // Mostrar mensaje de éxito
-        setTimeout(() => setError('Perfil actualizado exitosamente'), 100);
+        setTimeout(() => setError("Perfil actualizado exitosamente"), 100);
       } else {
-        setError(responseData.error || responseData.details || 'Error al actualizar el perfil');
+        setError(
+          responseData.error ||
+            responseData.details ||
+            "Error al actualizar el perfil"
+        );
       }
     } catch (error) {
-      console.error('Error updating profile:', error);
-      setError('Error al actualizar el perfil');
+      console.error("Error updating profile:", error);
+      setError("Error al actualizar el perfil");
     }
   };
 
@@ -110,9 +120,9 @@ const Profile = () => {
       <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
           <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="p-6">
+            <div className="d-flex flex-column align-items-center p-5">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Perfil de {user.role} 
+                Perfil de {user.role}
               </h2>
 
               {error && (
@@ -123,49 +133,61 @@ const Profile = () => {
 
               <form onSubmit={handleUpdate} className="space-y-6">
                 <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="my-2">
+                    <label className="" style={{ fontWeight: "bold" }}>
                       Nombre
                     </label>
                     <input
                       type="text"
                       name="nombre"
                       value={profile.Nombre}
-                      onChange={(e) => setProfile(prev => ({ ...prev, Nombre: e.target.value }))}
-                      className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          Nombre: e.target.value,
+                        }))
+                      }
+                      className="input-group"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="my-2">
+                    <label className="" style={{ fontWeight: "bold" }}>
                       Apellido
                     </label>
                     <input
                       type="text"
                       name="apellido"
                       value={profile.Apellido}
-                      onChange={(e) => setProfile(prev => ({ ...prev, Apellido: e.target.value }))}
-                      className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          Apellido: e.target.value,
+                        }))
+                      }
+                      className="input-group"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <div className="my-2">
+                    <label className="" style={{ fontWeight: "bold" }}>
                       Email
                     </label>
                     <input
                       type="email"
                       name="email"
                       value={profile.Email}
-                      onChange={(e) => setProfile(prev => ({ ...prev, Email: e.target.value }))}
-                      className="mt-1 block w-full shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm border-gray-300 rounded-md"
+                      onChange={(e) =>
+                        setProfile((prev) => ({
+                          ...prev,
+                          Email: e.target.value,
+                        }))
+                      }
+                      className="input-group"
                     />
                   </div>
                 </div>
 
                 <div className="mt-8">
-                  <button
-                    type="submit"
-                    className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                  >
+                  <button type="submit" className="btn btn-primary">
                     Actualizar Perfil
                   </button>
                 </div>

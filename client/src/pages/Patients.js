@@ -5,7 +5,6 @@ import { useAuth } from "../contexts/AuthContext";
 import { Spinner, Modal, Button, Form, Alert } from "react-bootstrap";
 import "../styles/patiens.css";
 
-
 const Patients = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -28,7 +27,6 @@ const Patients = () => {
     fetchPatients();
   }, []);
 
-  
   const fetchPatients = async () => {
     try {
       const response = await fetch("http://localhost:5000/api/patients", {
@@ -55,7 +53,7 @@ const Patients = () => {
     }));
   };
 
-/*
+  /*
   const handleAddPatient = async () => {
   try {
     const response = await fetch("http://localhost:5000/api/patients", {
@@ -91,53 +89,51 @@ const Patients = () => {
 };
 */
 
-const handleAddPatient = async () => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(newPatient.email)) {
-    setError("Ingrese un correo electrónico válido.");
-    return;
-  }
-
-   const telefonoValido = /^\d{4}-\d{4}$/.test(newPatient.telefono);
-  if (!telefonoValido) {
-    setError("El número de teléfono debe tener el formato 1234-5678.");
-    return;
-  }
-
-  try {
-    const response = await fetch("http://localhost:5000/api/patients", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(newPatient),
-    });
-
-    const data = await response.json();
-
-    if (response.ok) {
-      setNewPatient({
-        nombre: "",
-        apellido: "",
-        fechaNacimiento: "",
-        direccion: "",
-        telefono: "",
-        email: "",
-      });
-      setSuccess("Paciente agregado correctamente");
-      fetchPatients();
-      setError(null);
-    } else {
-      setError(data.error || "Error al agregar el paciente");
+  const handleAddPatient = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newPatient.email)) {
+      setError("Ingrese un correo electrónico válido.");
+      return;
     }
-  } catch (error) {
-    console.error("Error adding patient:", error);
-    setError("Error al agregar el paciente");
-  }
-};
 
+    const telefonoValido = /^\d{4}-\d{4}$/.test(newPatient.telefono);
+    if (!telefonoValido) {
+      setError("El número de teléfono debe tener el formato 1234-5678.");
+      return;
+    }
 
+    try {
+      const response = await fetch("http://localhost:5000/api/patients", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(newPatient),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setNewPatient({
+          nombre: "",
+          apellido: "",
+          fechaNacimiento: "",
+          direccion: "",
+          telefono: "",
+          email: "",
+        });
+        setSuccess("Paciente agregado correctamente");
+        fetchPatients();
+        setError(null);
+      } else {
+        setError(data.error || "Error al agregar el paciente");
+      }
+    } catch (error) {
+      console.error("Error adding patient:", error);
+      setError("Error al agregar el paciente");
+    }
+  };
 
   const handleEditPatient = (patient) => {
     setEditingPatient(patient);
@@ -153,17 +149,17 @@ const handleAddPatient = async () => {
   };
 
   const handleUpdatePatient = async () => {
-   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(newPatient.email)) {
-    setError("Ingrese un correo electrónico válido.");
-    return;
-  }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newPatient.email)) {
+      setError("Ingrese un correo electrónico válido.");
+      return;
+    }
 
-   const telefonoValido = /^\d{4}-\d{4}$/.test(newPatient.telefono);
-  if (!telefonoValido) {
-    setError("El número de teléfono debe tener el formato 1234-5678.");
-    return;
-  }
+    const telefonoValido = /^\d{4}-\d{4}$/.test(newPatient.telefono);
+    if (!telefonoValido) {
+      setError("El número de teléfono debe tener el formato 1234-5678.");
+      return;
+    }
 
     try {
       const response = await fetch(
@@ -243,8 +239,40 @@ const handleAddPatient = async () => {
               <h2 className="h4 mb-0">Gestión de Pacientes</h2>
             </div>
             <div className="card-body">
-              {error && <Alert variant="danger">{error}</Alert>}
-              {success && <Alert variant="success">{success}</Alert>}
+              {error && (
+                <Alert
+                  variant="danger"
+                  dismissible
+                  onClose={() => setError("")}
+                >
+                  {error}
+                  <Button
+                    variant="outline-danger"
+                    onClick={() => setError("")}
+                    className="position-absolute top-0 end-0 p-1"
+                    style={{ border: "none", background: "transparent" }}
+                  >
+                    ×
+                  </Button>
+                </Alert>
+              )}
+              {success && (
+                <Alert
+                  variant="success"
+                  dismissible
+                  onClose={() => setSuccess("")}
+                >
+                  {success}
+                  <Button
+                    variant="outline-success"
+                    onClick={() => setSuccess("")}
+                    className="position-absolute top-0 end-0 p-1"
+                    style={{ border: "none", background: "transparent" }}
+                  >
+                    ×
+                  </Button>
+                </Alert>
+              )}
 
               <div className="mb-5">
                 <h3 className="h5 mb-3">Nuevo Paciente</h3>
@@ -268,7 +296,7 @@ const handleAddPatient = async () => {
                         onChange={handleInputChange}
                       />
                     </div>
-                   <div className="col-md-6 mb-3">
+                    <div className="col-md-6 mb-3">
                       <Form.Label>Fecha de Nacimiento</Form.Label>
                       <Form.Control
                         type="date"
@@ -276,7 +304,11 @@ const handleAddPatient = async () => {
                         value={newPatient.fechaNacimiento}
                         onChange={handleInputChange}
                         min="1925-01-01"
-                        max={new Date(Date.now() - 86400000).toISOString().split("T")[0]}
+                        max={
+                          new Date(Date.now() - 86400000)
+                            .toISOString()
+                            .split("T")[0]
+                        }
                       />
                     </div>
                     <div className="col-md-6 mb-3">
@@ -288,27 +320,29 @@ const handleAddPatient = async () => {
                         onChange={handleInputChange}
                       />
                     </div>
-               <div className="col-md-6 mb-3">
-                  <Form.Label>Teléfono</Form.Label>
-                  <Form.Control
-                    type="tel"
-                    name="telefono"
-                    value={newPatient.telefono}
-                    onChange={(e) => {
-                      let val = e.target.value.replace(/\D/g, '').slice(0,8); // solo números max 8
-                      if (val.length > 4) {
-                        val = val.slice(0,4) + '-' + val.slice(4);
-                      }
-                      setNewPatient(prev => ({ ...prev, telefono: val }));
-                    }}
-                    pattern="\d{4}-\d{4}"
-                    maxLength={9}
-                    inputMode="numeric"
-                    placeholder="####-####"
-                    title="El teléfono debe tener el formato 1234-5678"
-                    required
-                  />
-                </div>
+                    <div className="col-md-6 mb-3">
+                      <Form.Label>Teléfono</Form.Label>
+                      <Form.Control
+                        type="tel"
+                        name="telefono"
+                        value={newPatient.telefono}
+                        onChange={(e) => {
+                          let val = e.target.value
+                            .replace(/\D/g, "")
+                            .slice(0, 8); // solo números max 8
+                          if (val.length > 4) {
+                            val = val.slice(0, 4) + "-" + val.slice(4);
+                          }
+                          setNewPatient((prev) => ({ ...prev, telefono: val }));
+                        }}
+                        pattern="\d{4}-\d{4}"
+                        maxLength={9}
+                        inputMode="numeric"
+                        placeholder="####-####"
+                        title="El teléfono debe tener el formato 1234-5678"
+                        required
+                      />
+                    </div>
 
                     <div className="col-md-6 mb-3">
                       <Form.Label>Email</Form.Label>
@@ -321,7 +355,6 @@ const handleAddPatient = async () => {
                         placeholder="ejemplo@correo.com"
                         title="Ingrese un correo electrónico válido"
                       />
-
                     </div>
                   </div>
                   <Button

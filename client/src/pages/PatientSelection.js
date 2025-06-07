@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { FaUser, FaArrowRight } from "react-icons/fa";
 import ReportsList from "../components/ReportsList";
+import ConsentModal from "../components/ConsentModal";
 import "../styles/patient-selection.css";
 
 const PatientSelection = () => {
@@ -11,28 +12,37 @@ const PatientSelection = () => {
   const { user } = useAuth();
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPatientId, setSelectedPatientId] = useState(null);
+  const [showConsentModal, setShowConsentModal] = useState(false);
 
-  useEffect(() => {
-    const fetchPatients = async () => {
-      try {
-        const response = await fetch("http://localhost:5000/api/patients", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        });
-        const data = await response.json();
-        setPatients(data);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error al cargar pacientes:", error);
-        setLoading(false);
-      }
-    };
+  const handleAcceptConsent = () => {
+    setShowConsentModal(false);
+    if (selectedPatientId) {
+      proceedWithEvaluation(selectedPatientId);
+    }
+  };
 
-    fetchPatients();
-  }, []);
+  const handleDeclineConsent = () => {
+    setShowConsentModal(false);
+    alert("Debes aceptar el consentimiento para proceder con la evaluación.");
+  };
 
-  const handlePatientSelect = async (patientId) => {
+  const handlePatientSelect = (patientId) => {
+    setSelectedPatientId(patientId);
+
+    // Verificar si la ruta destino es /reports
+    const targetPath = location.state?.from || "/dashboard";
+
+    if (targetPath === "/reports") {
+      // Si es para reportes, proceder directamente sin mostrar consentimiento
+      proceedWithEvaluation(patientId);
+    } else {
+      // Para otras rutas, mostrar el modal de consentimiento
+      setShowConsentModal(true);
+    }
+  };
+
+  const proceedWithEvaluation = async (patientId) => {
     try {
       const response = await fetch(
         `http://localhost:5000/api/evaluacionesApto/${patientId}`,
@@ -74,7 +84,7 @@ const PatientSelection = () => {
       if (apto === "adir" && targetPath === "/adir") {
         navigate(`/adir/${patientId}`);
       } else if (apto === "ados" && targetPath === "/ados") {
-        navigate(`/ados/${patientId}`);
+        navigate(`/ados/${patientId}`, { state: { from: targetPath } });
       } else if (apto === "adir" && targetPath === "/ados") {
         alert(
           "Este paciente no puede realizar la evaluación ADOS. Pero si puede realizar la evaluación ADIR."
@@ -98,6 +108,26 @@ const PatientSelection = () => {
       alert("Hubo un error al verificar la aptitud del paciente.");
     }
   };
+
+  useEffect(() => {
+    const fetchPatients = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/patients", {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+        const data = await response.json();
+        setPatients(data);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error al cargar pacientes:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchPatients();
+  }, []);
 
   const calculateAge = (fechaNacimiento) => {
     const birthDate = new Date(fechaNacimiento);
@@ -152,10 +182,19 @@ const PatientSelection = () => {
 
   return (
     <div className="container mt-5">
-      <div className="patient-list">
+      <ConsentModal
+        isOpen={showConsentModal}
+        onAccept={handleAcceptConsent}
+        onDecline={handleDeclineConsent}
+      />
+
+      <div className={`patient-list ${showConsentModal ? "blurred" : ""}`}>
         <h3 className="mb-4">{currentPageTitle}</h3>
         {patients.map((patient) => (
-          <div key={patient.ID} className="patient-card mb-3">
+          <div
+            key={patient.ID}
+            className={`patient-card mb-3 ${showConsentModal ? "hidden" : ""}`}
+          >
             <div className="patient-info">
               <FaUser className="patient-icon me-2" />
               <div>

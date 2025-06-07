@@ -1,0 +1,45 @@
+/* privacy-policy.css */
+.privacy-policy-container {
+  max-width: 900px;
+}
+
+.privacy-policy-container .card {
+  border: none;
+}
+
+.privacy-policy-container .accordion-button {
+  font-weight: 500;
+  padding: 1rem 1.25rem;
+}
+
+.privacy-policy-container .accordion-button:not(.collapsed) {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+.privacy-policy-container .accordion-body {
+  padding: 1.25rem;
+}
+
+.privacy-policy-container ul {
+  padding-left: 1.5rem;
+}
+
+.privacy-policy-container ul li {
+  margin-bottom: 0.5rem;
+}
+
+.privacy-policy-container .intro-section {
+  border-bottom: 1px solid #dee2e6;
+  padding-bottom: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.privacy-policy-container .final-notes {
+  border-top: 1px solid #dee2e6;
+  padding-top: 1.5rem;
+}
+
+.privacy-policy-container a {
+  text-decoration: none;
+}
