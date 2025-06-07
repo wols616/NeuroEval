@@ -986,6 +986,46 @@ function isPasswordValid(password) {
   return lengthOk && hasUpper && hasLower && hasNumber;
 }
 
+function isPasswordValid(password) {
+  if (typeof password !== "string") return false;
+
+  const lengthOk = password.length >= 8;
+  const hasUpper = /[A-Z]/.test(password);
+  const hasLower = /[a-z]/.test(password);
+  const hasNumber = /[0-9]/.test(password);
+  return lengthOk && hasUpper && hasLower && hasNumber;
+}
+
+//Métodos de administrador para USUARIOS
+app.post("/api/administrador", authenticateToken, async (req, res) => {
+  try {
+    const { nombre, apellido, email, contrasena } = req.body;
+
+    if (!contrasena || !isPasswordValid(contrasena)) {
+      return res.status(400).json({
+        error:
+          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
+      });
+    }
+
+    const hashedPassword = await hashPassword(contrasena);
+
+    const query =
+      "INSERT INTO Administrador (Nombre, Apellido, Email, Contrasena) VALUES (?, ?, ?, ?)";
+
+    db.query(
+      query,
+      [nombre, apellido, email, hashedPassword],
+      (err, results) => {
+        if (err) return res.status(500).json({ error: "Database error" });
+        res.json(results);
+      }
+    );
+  } catch (error) {
+    res.status(500).json({ error: "Encryption or server error" });
+  }
+});
+
 app.post("/api/especialista", authenticateToken, async (req, res) => {
   try {
     const { nombre, apellido, email, contrasena } = req.body;
@@ -1017,42 +1057,70 @@ app.post("/api/especialista", authenticateToken, async (req, res) => {
   }
 });
 
-function isPasswordValid(password) {
-  if (typeof password !== "string") return false;
+// Obtener todos los usuarios por tipo
+app.get("/api/users/:type", authenticateToken, (req, res) => {
+  const { type } = req.params;
 
-  const lengthOk = password.length >= 8;
-  const hasUpper = /[A-Z]/.test(password);
-  const hasLower = /[a-z]/.test(password);
-  const hasNumber = /[0-9]/.test(password);
-  return lengthOk && hasUpper && hasLower && hasNumber;
-}
+  if (type !== "Administrador" && type !== "Especialista") {
+    return res.status(400).json({ error: "Tipo de usuario no válido" });
+  }
 
-app.post("/api/administrador", authenticateToken, async (req, res) => {
-  try {
-    const { nombre, apellido, email, contrasena } = req.body;
+  const query = `SELECT ID, Nombre, Apellido, Email FROM ${type}`;
+  db.query(query, (err, results) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    res.json(results);
+  });
+});
 
-    if (!contrasena || !isPasswordValid(contrasena)) {
-      return res.status(400).json({
-        error:
-          "La contraseña debe tener al menos 8 caracteres, una mayúscula, una minúscula y un número.",
-      });
+// Actualizar usuario
+app.put("/api/users/:type/:id", authenticateToken, async (req, res) => {
+  const { type, id } = req.params;
+  const { nombre, apellido, email } = req.body;
+
+  if (type !== "Administrador" && type !== "Especialista") {
+    return res.status(400).json({ error: "Tipo de usuario no válido" });
+  }
+
+  const query = `UPDATE ${type} SET Nombre = ?, Apellido = ?, Email = ? WHERE ID = ?`;
+  db.query(query, [nombre, apellido, email, id], (err, results) => {
+    if (err) return res.status(500).json({ error: "Database error" });
+    if (results.affectedRows === 0) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
     }
+    res.json({ message: "Usuario actualizado correctamente" });
+  });
+});
 
-    const hashedPassword = await hashPassword(contrasena);
+// Cambiar contraseña de cualquier usuario (requiere privilegios de admin)
+app.post("/api/users/change-password", authenticateToken, async (req, res) => {
+  const { userId, userType, newPassword } = req.body;
 
-    const query =
-      "INSERT INTO Administrador (Nombre, Apellido, Email, Contrasena) VALUES (?, ?, ?, ?)";
+  // Verificar que el usuario que hace la petición es administrador
+  if (req.user.role !== "Administrador") {
+    return res.status(403).json({ error: "No autorizado" });
+  }
 
-    db.query(
-      query,
-      [nombre, apellido, email, hashedPassword],
-      (err, results) => {
-        if (err) return res.status(500).json({ error: "Database error" });
-        res.json(results);
+  if (userType !== "Administrador" && userType !== "Especialista") {
+    return res.status(400).json({ error: "Tipo de usuario no válido" });
+  }
+
+  try {
+    // Hash nueva contraseña
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Actualizar contraseña
+    const updateQuery = `UPDATE ${userType} SET Contrasena = ? WHERE ID = ?`;
+    db.query(updateQuery, [hashedPassword, userId], (err, results) => {
+      if (err)
+        return res.status(500).json({ error: "Error en la base de datos" });
+      if (results.affectedRows === 0) {
+        return res.status(404).json({ error: "Usuario no encontrado" });
       }
-    );
+      res.json({ message: "Contraseña actualizada correctamente" });
+    });
   } catch (error) {
-    res.status(500).json({ error: "Encryption or server error" });
+    console.error("Error al cambiar contraseña:", error);
+    res.status(500).json({ error: "Error al cambiar la contraseña" });
   }
 });
 

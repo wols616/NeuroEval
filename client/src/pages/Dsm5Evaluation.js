@@ -272,9 +272,14 @@ export default function Dsm5Evaluation() {
           </strong>
         </div>
         <h3>Resultado de Evaluación</h3>
-        <p>{resultado}</p>
+        <p style={{ fontSize: "1.2rem" }}>{resultado}</p>
 
-        <div className="options-container">
+        <div className="alert alert-info p-2 d-flex flex-column align-items-center mt-5">
+          <strong className="p-0 m-0" style={{ fontSize: "1.1rem" }}>
+            Seleccione el tipo de prueba que el paciente podrá realizar.
+          </strong>
+        </div>
+        <div className="options-container my-0">
           <div
             className={`option-box ${seleccionados.ADI_R ? "selected" : ""}`}
             onClick={() => manejarSeleccion("ADI_R")}
@@ -289,7 +294,10 @@ export default function Dsm5Evaluation() {
           </div>
         </div>
 
-        <button className="finalize-button" onClick={finalizarEvaluacion}>
+        <button
+          className="btn btn-primary w-100 mt-5"
+          onClick={finalizarEvaluacion}
+        >
           Finalizar
         </button>
       </div>

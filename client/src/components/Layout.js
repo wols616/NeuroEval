@@ -5,10 +5,10 @@ import { Link } from "react-router-dom";
 
 const Layout = ({ children }) => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="d-flex flex-column min-vh-100 bg-gray-100">
       <Navbar />
-      <main className="p-5">{children}</main>
-      <footer className="mt-auto py-3 bg-light">
+      <main className="flex-grow-1 p-5">{children}</main>
+      <footer className="py-3 bg-light mt-auto">
         <Container>
           <div className="text-center">
             <small className="text-muted">

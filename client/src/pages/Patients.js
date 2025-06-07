@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 import { useAuth } from "../contexts/AuthContext";
-import { Spinner, Modal, Button, Form, Alert } from "react-bootstrap";
+import { Spinner, Modal, Button, Form } from "react-bootstrap";
 import "../styles/patiens.css";
+
+const MySwal = withReactContent(Swal);
 
 const Patients = () => {
   const navigate = useNavigate();
@@ -20,8 +24,6 @@ const Patients = () => {
   const [editingPatient, setEditingPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
 
   useEffect(() => {
     fetchPatients();
@@ -36,10 +38,14 @@ const Patients = () => {
       });
       const data = await response.json();
       setPatients(data);
-      setError(null);
     } catch (error) {
       console.error("Error fetching patients:", error);
-      setError("Error al cargar los pacientes");
+      MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al cargar los pacientes",
+        confirmButtonColor: "#3085d6",
+      });
     } finally {
       setLoading(false);
     }
@@ -53,52 +59,26 @@ const Patients = () => {
     }));
   };
 
-  /*
-  const handleAddPatient = async () => {
-  try {
-    const response = await fetch("http://localhost:5000/api/patients", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(newPatient),
-    });
-
-    const data = await response.json(); // Parseamos el json de respuesta
-
-    if (response.ok) {
-      setNewPatient({
-        nombre: "",
-        apellido: "",
-        fechaNacimiento: "",
-        direccion: "",
-        telefono: "",
-        email: "",
-      });
-      setSuccess("Paciente agregado correctamente");
-      fetchPatients();
-      setError(null); // limpiamos cualquier error anterior
-    } else {
-      setError(data.error || "Error al agregar el paciente"); // Mostrar el mensaje que viene del backend
-    }
-  } catch (error) {
-    console.error("Error adding patient:", error);
-    setError("Error al agregar el paciente");
-  }
-};
-*/
-
   const handleAddPatient = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newPatient.email)) {
-      setError("Ingrese un correo electrónico válido.");
+      MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ingrese un correo electrónico válido.",
+        confirmButtonColor: "#3085d6",
+      });
       return;
     }
 
     const telefonoValido = /^\d{4}-\d{4}$/.test(newPatient.telefono);
     if (!telefonoValido) {
-      setError("El número de teléfono debe tener el formato 1234-5678.");
+      MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: "El número de teléfono debe tener el formato 1234-5678.",
+        confirmButtonColor: "#3085d6",
+      });
       return;
     }
 
@@ -123,15 +103,31 @@ const Patients = () => {
           telefono: "",
           email: "",
         });
-        setSuccess("Paciente agregado correctamente");
+
+        MySwal.fire({
+          icon: "success",
+          title: "Éxito",
+          text: "Paciente agregado correctamente",
+          confirmButtonColor: "#3085d6",
+        });
+
         fetchPatients();
-        setError(null);
       } else {
-        setError(data.error || "Error al agregar el paciente");
+        MySwal.fire({
+          icon: "error",
+          title: "Error",
+          text: data.error || "Error al agregar el paciente",
+          confirmButtonColor: "#3085d6",
+        });
       }
     } catch (error) {
       console.error("Error adding patient:", error);
-      setError("Error al agregar el paciente");
+      MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al agregar el paciente",
+        confirmButtonColor: "#3085d6",
+      });
     }
   };
 
@@ -151,13 +147,23 @@ const Patients = () => {
   const handleUpdatePatient = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(newPatient.email)) {
-      setError("Ingrese un correo electrónico válido.");
+      MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Ingrese un correo electrónico válido.",
+        confirmButtonColor: "#3085d6",
+      });
       return;
     }
 
     const telefonoValido = /^\d{4}-\d{4}$/.test(newPatient.telefono);
     if (!telefonoValido) {
-      setError("El número de teléfono debe tener el formato 1234-5678.");
+      MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: "El número de teléfono debe tener el formato 1234-5678.",
+        confirmButtonColor: "#3085d6",
+      });
       return;
     }
 
@@ -185,19 +191,47 @@ const Patients = () => {
           telefono: "",
           email: "",
         });
-        setSuccess("Paciente actualizado correctamente");
+
+        MySwal.fire({
+          icon: "success",
+          title: "Éxito",
+          text: "Paciente actualizado correctamente",
+          confirmButtonColor: "#3085d6",
+        });
+
         fetchPatients();
       } else {
-        setError("Error al actualizar el paciente");
+        MySwal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error al actualizar el paciente",
+          confirmButtonColor: "#3085d6",
+        });
       }
     } catch (error) {
       console.error("Error updating patient:", error);
-      setError("Error al actualizar el paciente");
+      MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: "Error al actualizar el paciente",
+        confirmButtonColor: "#3085d6",
+      });
     }
   };
 
   const handleDeletePatient = async (patientId) => {
-    if (window.confirm("¿Estás seguro de eliminar este paciente?")) {
+    const result = await MySwal.fire({
+      title: "¿Estás seguro?",
+      text: "No podrás revertir esta acción",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Sí, eliminar",
+      cancelButtonText: "Cancelar",
+    });
+
+    if (result.isConfirmed) {
       try {
         const response = await fetch(
           `http://localhost:5000/api/patients/${patientId}`,
@@ -210,14 +244,29 @@ const Patients = () => {
         );
 
         if (response.ok) {
-          setSuccess("Paciente eliminado correctamente");
+          MySwal.fire({
+            icon: "success",
+            title: "Eliminado",
+            text: "Paciente eliminado correctamente",
+            confirmButtonColor: "#3085d6",
+          });
           fetchPatients();
         } else {
-          setError("Error al eliminar el paciente");
+          MySwal.fire({
+            icon: "error",
+            title: "Error",
+            text: "Error al eliminar el paciente",
+            confirmButtonColor: "#3085d6",
+          });
         }
       } catch (error) {
         console.error("Error deleting patient:", error);
-        setError("Error al eliminar el paciente");
+        MySwal.fire({
+          icon: "error",
+          title: "Error",
+          text: "Error al eliminar el paciente",
+          confirmButtonColor: "#3085d6",
+        });
       }
     }
   };
@@ -239,41 +288,6 @@ const Patients = () => {
               <h2 className="h4 mb-0">Gestión de Pacientes</h2>
             </div>
             <div className="card-body">
-              {error && (
-                <Alert
-                  variant="danger"
-                  dismissible
-                  onClose={() => setError("")}
-                >
-                  {error}
-                  <Button
-                    variant="outline-danger"
-                    onClick={() => setError("")}
-                    className="position-absolute top-0 end-0 p-1"
-                    style={{ border: "none", background: "transparent" }}
-                  >
-                    ×
-                  </Button>
-                </Alert>
-              )}
-              {success && (
-                <Alert
-                  variant="success"
-                  dismissible
-                  onClose={() => setSuccess("")}
-                >
-                  {success}
-                  <Button
-                    variant="outline-success"
-                    onClick={() => setSuccess("")}
-                    className="position-absolute top-0 end-0 p-1"
-                    style={{ border: "none", background: "transparent" }}
-                  >
-                    ×
-                  </Button>
-                </Alert>
-              )}
-
               <div className="mb-5">
                 <h3 className="h5 mb-3">Nuevo Paciente</h3>
                 <Form>
@@ -329,7 +343,7 @@ const Patients = () => {
                         onChange={(e) => {
                           let val = e.target.value
                             .replace(/\D/g, "")
-                            .slice(0, 8); // solo números max 8
+                            .slice(0, 8);
                           if (val.length > 4) {
                             val = val.slice(0, 4) + "-" + val.slice(4);
                           }
@@ -422,7 +436,7 @@ const Patients = () => {
         show={showModal}
         onHide={() => setShowModal(false)}
         centered
-        className="modal-dialog"
+        className="modal-custom modal-backdrop-custom"
       >
         <Modal.Header closeButton>
           <Modal.Title>Editar Paciente</Modal.Title>

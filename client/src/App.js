@@ -28,6 +28,8 @@ import PrivacyPolicy from "./pages/PrivacyPolicy.js";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
+import Swal from "sweetalert2";
+
 function PrivateRoute({ children }) {
   const { user, loading } = useAuth();
 

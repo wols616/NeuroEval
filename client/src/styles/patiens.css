@@ -1,0 +1,12 @@
+.modal-custom {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    margin: 0 !important;
+}
+
+.modal-backdrop-custom {
+    background-color: rgba(0, 0, 0, 0.5) !important;
+    /* Ajusta opacidad */
+}

@@ -1,6 +1,11 @@
 import React, { useState } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import Container from "react-bootstrap/Container";
+import Card from "react-bootstrap/Card";
+import Button from "react-bootstrap/Button";
+import Row from "react-bootstrap/Row";
+import Col from "react-bootstrap/Col";
 
 const AdosModuleSelection = () => {
   const { patientId } = useParams();
@@ -24,45 +29,54 @@ const AdosModuleSelection = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-gray-100 to-gray-200">
-      <div className="max-w-md mx-auto py-12 px-4 sm:px-6 lg:px-8">
-        <div className="bg-white overflow-hidden shadow-lg rounded-lg p-6">
-          <h2 className="text-2xl font-bold text-center text-gray-800 mb-6">
-            Seleccionar Módulo ADOS-2
-          </h2>
+    <div className="min-vh-100 bg-light">
+      <Container className="py-5">
+        <Row className="justify-content-center">
+          <Col md={8} lg={6}>
+            <Card className="shadow">
+              <Card.Body className="p-4">
+                <Card.Title as="h2" className="text-center mb-4 text-primary">
+                  Seleccionar Módulo ADOS-2
+                </Card.Title>
 
-          <div className="space-y-4">
-            <p className="text-gray-600 mb-4">
-              Por favor seleccione el módulo ADOS-2 que corresponde al paciente:
-            </p>
-
-            <div className="grid grid-cols-2 gap-4">
-              {["T", "1", "2", "3", "4"].map((module) => (
-                <button
-                  key={module}
-                  onClick={() => handleModuleSelect(module)}
-                  className={`py-3 px-4 border rounded-lg text-center transition-colors ${
-                    selectedModule === module
-                      ? "bg-indigo-600 text-white border-indigo-600"
-                      : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-                  }`}
+                <Card.Text
+                  className="text-muted mb-4 text-center"
+                  style={{ fontSize: "1.1rem" }}
                 >
-                  Módulo {module}
-                </button>
-              ))}
-            </div>
+                  Por favor seleccione el módulo ADOS-2 que corresponde al
+                  paciente:
+                </Card.Text>
 
-            <div className="mt-6">
-              <button
-                onClick={handleContinue}
-                className="w-full btn btn-primary py-2 px-4"
-              >
-                Continuar a la Evaluación
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+                <Row className="g-3 mb-4 d-flex justify-content-center">
+                  {["T", "1", "2", "3", "4"].map((module) => (
+                    <Col key={module} xs={6} sm={4} md={4} lg={4}>
+                      <Button
+                        variant={
+                          selectedModule === module
+                            ? "primary"
+                            : "outline-primary"
+                        }
+                        onClick={() => handleModuleSelect(module)}
+                        className="w-100 py-3"
+                      >
+                        Módulo {module}
+                      </Button>
+                    </Col>
+                  ))}
+                </Row>
+
+                <Button
+                  className="btn btn-primary w-100"
+                  size="lg"
+                  onClick={handleContinue}
+                >
+                  Continuar a la Evaluación
+                </Button>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
     </div>
   );
 };
