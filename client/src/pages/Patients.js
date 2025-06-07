@@ -24,6 +24,7 @@ const Patients = () => {
   const [editingPatient, setEditingPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchPatients();
@@ -271,6 +272,11 @@ const Patients = () => {
     }
   };
 
+  const filteredPatients = patients.filter((patient) => {
+    const fullName = `${patient.Nombre} ${patient.Apellido}`.toLowerCase();
+    return fullName.includes(searchTerm.toLowerCase());
+  });
+
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center min-vh-100">
@@ -383,6 +389,14 @@ const Patients = () => {
 
               <div className="mt-4">
                 <h3 className="h5 mb-3">Pacientes Registrados</h3>
+                <div className="search-box" style={{ width: "300px" }}>
+                  <Form.Control
+                    type="text"
+                    placeholder="Buscar pacientes..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
                 <div className="table-responsive">
                   <table className="table table-striped table-hover">
                     <thead className="thead-dark">
@@ -393,7 +407,7 @@ const Patients = () => {
                       </tr>
                     </thead>
                     <tbody>
-                      {patients.map((patient) => (
+                      {filteredPatients.map((patient) => (
                         <tr key={patient.ID}>
                           <td>
                             {patient.Nombre} {patient.Apellido}
